@@ -27,13 +27,13 @@
         .intro-section {
             background: #fff;
             padding: 15px;
-            border: 1px solid #ccc;
+            border: 1px solid #333; /* シンプルな枠線に変更 */
             text-align: left;
             margin-bottom: 20px;
             font-size: 14px;
         }
 
-        /* ボタンのスタイル */
+        /* ボタン共通設定 */
         button {
             font-size: 18px;
             padding: 15px;
@@ -42,43 +42,71 @@
             max-width: 350px;
             display: block;
             cursor: pointer;
+            border: 1px solid #999; /* 装飾を削除しシンプルに */
+            border-radius: 4px;     /* 丸みを最小限に */
+            background-color: #eee;
+        }
+        /* ボタン押下時の動き */
+        button:active {
+            background-color: #ddd;
         }
 
+        /* メインメニューのボタン色分け（視認性のため維持） */
+        .btn-menu { background-color: #bde0fe; }
+        .btn-rice { background-color: #ffcfd2; }
+        
         /* 戻るボタン */
         .btn-back {
-            background-color: #999;
+            background-color: #666;
             color: white;
             padding: 10px;
             font-size: 16px;
+            border: none;
+        }
+
+        /* 操作ボタン（全選択など） */
+        .btn-small {
+            width: auto;
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 5px;
+            background-color: #ddd;
         }
 
         /* 画面切り替え */
         .hidden { display: none; }
 
-        /* 食材リスト（表形式） */
+        /* 食材リストのカテゴリ枠 */
         .category-box {
             background: #fff;
             margin-bottom: 20px;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #333;
+            text-align: left;
         }
         .category-title {
-            background: #eee;
+            background: #ddd;
             padding: 5px;
             font-weight: bold;
             margin-bottom: 10px;
-            text-align: left;
+            border-bottom: 1px solid #999;
         }
+        /* グリッド表示（整列） */
         .ingredient-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 5px;
-            text-align: left;
         }
         .ingredient-item {
             display: block;
             padding: 5px;
-            border: 1px solid #eee;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+        }
+        .ingredient-item input {
+            transform: scale(1.2);
+            margin-right: 5px;
         }
 
         /* ご飯計算リスト */
@@ -105,6 +133,7 @@
             width: 120px;
         }
         
+        /* 数字直接入力 */
         .gram-input {
             font-size: 18px;
             padding: 5px;
@@ -125,8 +154,8 @@
             <p><strong>アドバイス:</strong> AI検索は便利ですが、在庫に合わせて量は人間が調整してください。</p>
         </div>
 
-        <button onclick="showScreen('meal-planning')">献立を考える</button>
-        <button onclick="showScreen('rice-calculation')">ご飯の量を計算</button>
+        <button class="btn-menu" onclick="showScreen('meal-planning')">献立を考える</button>
+        <button class="btn-rice" onclick="showScreen('rice-calculation')">ご飯の量を計算</button>
     </div>
 
     <div id="meal-planning" class="hidden">
@@ -134,30 +163,46 @@
 
         <h2>冷蔵庫にあるものは？</h2>
         
-        <div style="margin-bottom: 15px;">
-            <button style="display:inline-block; width:auto; padding:10px;" onclick="toggleAll(true)">全選択</button>
-            <button style="display:inline-block; width:auto; padding:10px;" onclick="toggleAll(false)">全解除</button>
+        <div>
+            <button class="btn-small" onclick="toggleAll(true)">全選択</button>
+            <button class="btn-small" onclick="toggleAll(false)">全解除</button>
         </div>
 
         <form id="ingredient-form">
+            
             <div class="category-box">
-                <div class="category-title">食材リスト</div>
+                <div class="category-title">お肉・魚</div>
                 <div class="ingredient-grid">
                     <label class="ingredient-item"><input type="checkbox" name="food" value="豚肉"> 豚肉</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="鶏肉"> 鶏肉</label>
-                    <label class="ingredient-item"><input type="checkbox" name="food" value="キャベツ"> キャベツ</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="ひき肉"> ひき肉</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="牛肉"> 牛肉</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="鮭"> 鮭</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="サバ"> サバ</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="白身魚"> 白身魚</label>
+                </div>
+            </div>
+
+            <div class="category-box">
+                <div class="category-title">野菜・その他</div>
+                <div class="ingredient-grid">
                     <label class="ingredient-item"><input type="checkbox" name="food" value="玉ねぎ"> 玉ねぎ</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="人参"> 人参</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="じゃがいも"> じゃがいも</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="キャベツ"> キャベツ</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="大根"> 大根</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="白菜"> 白菜</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="卵"> 卵</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="豆腐"> 豆腐</label>
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="厚揚げ"> 厚揚げ</label>
                 </div>
             </div>
+
         </form>
 
-        <button onclick="generateMenu()">献立を提案する！</button>
+        <button class="btn-menu" onclick="generateMenu()">献立を提案する！</button>
         
-        <button onclick="googleSearch()">Googleで検索する</button>
+        <button style="background-color:#4285F4; color:white;" onclick="googleSearch()">Googleで検索する</button>
         
         <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
     </div>
@@ -169,17 +214,18 @@
         <ul id="member-list" class="rice-list">
             </ul>
         
-        <div style="background: #fff; padding: 15px; margin-top: 20px; border:1px solid #ccc;">
+        <div style="background: #fff; padding: 15px; margin-top: 20px; border:1px solid #333;">
             <h3 style="margin:0 0 10px 0;">合計: <span id="total-rice" style="font-size: 24px;">0</span> g</h3>
             <p>（約 <span id="total-gou">0.0</span> 合）</p>
         </div>
 
-        <button onclick="calculateRice()">計算する</button>
+        <button class="btn-rice" onclick="calculateRice()">計算する</button>
         <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
     </div>
 
     <script>
         // --- データ初期設定 ---
+        // ※名前や初期値はここで変更できます
         const defaultMembers = [
             { id: 'userA', name: '利用者A', amount: 150 },
             { id: 'userB', name: '利用者B', amount: 150 },
@@ -204,17 +250,15 @@
             document.getElementById(screenId).classList.remove('hidden');
             window.scrollTo(0, 0);
         }
+        function showMainMenu() { showScreen('main-menu'); }
 
-        function showMainMenu() {
-            showScreen('main-menu');
-        }
-
+        // --- 献立機能 ---
         function toggleAll(isChecked) {
             const checkboxes = document.querySelectorAll('input[name="food"]');
             checkboxes.forEach(cb => cb.checked = isChecked);
         }
 
-        // --- 【修正】献立提案機能（内部ロジック） ---
+        // 内部ロジックによる提案（現在は仮のロジック）
         function generateMenu() {
             const checkboxes = document.querySelectorAll('input[name="food"]:checked');
             if (checkboxes.length === 0) {
@@ -222,24 +266,22 @@
                 return;
             }
 
-            // ★ここに将来、ボスの考案したロジックが入ります。
-            // 今は仮として「ガッツリ炒め」を提案します。
-            
-            let resultMenu = "豚肉とキャベツのガッツリ炒め"; 
-            
-            // 少しだけ賢く（豚肉が入っていなかったら別の名前にする例）
+            // ★ここに将来ボスのロジックを実装します
+            // 現在は、とりあえずの回答を表示します
             let ingredients = [];
             checkboxes.forEach(cb => ingredients.push(cb.value));
             
-            if (!ingredients.includes("豚肉")) {
-                resultMenu = "おまかせ野菜炒め";
+            let message = "選択された食材:\n" + ingredients.join("、") + "\n\nこれらを使ったメニューを提案します（ロジック準備中）";
+            
+            // 簡易的な条件分岐の例
+            if(ingredients.includes("豚肉") && ingredients.includes("キャベツ")) {
+                message = "【提案】\n豚肉とキャベツの味噌炒め（回鍋肉風）\n\nごま油で炒めると風味がアップします。";
             }
 
-            // アラートで提案を表示（Googleには飛びません）
-            alert("【提案メニュー】\n\n" + resultMenu + "\n\n(※これは仮の提案です。今後ここにボスのレシピロジックを追加します)");
+            alert(message);
         }
 
-        // --- Google検索機能 ---
+        // Google検索
         function googleSearch() {
             const checkboxes = document.querySelectorAll('input[name="food"]:checked');
             if (checkboxes.length === 0) {
@@ -256,7 +298,7 @@
             window.open(url, '_blank');
         }
 
-        // --- ご飯計算機能 ---
+        // --- ご飯計算機能（直接入力式） ---
         function renderRiceList() {
             const listContainer = document.getElementById('member-list');
             listContainer.innerHTML = '';
