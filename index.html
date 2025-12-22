@@ -6,12 +6,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <title>献立 & ご飯計算</title>
     <style>
-        /* デザイン設定 */
-        body { font-family: sans-serif; text-align: center; background-color: #f0f8ff; margin: 0; padding: 20px; color: #333; }
-        h1 { font-size: 24px; margin-bottom: 20px; color: #2c3e50; }
+        /* 全体の設定 */
+        body { font-family: sans-serif; text-align: center; background-color: #f0f8ff; margin: 0; padding: 15px; color: #333; }
+        h1 { font-size: 22px; margin-bottom: 15px; color: #2c3e50; }
         #main-menu { max-width: 400px; margin: 0 auto; }
         
-        .section-box { background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 8px; text-align: left; margin-bottom: 20px; }
+        .section-box { background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 8px; text-align: left; margin-bottom: 15px; }
         
         button { font-size: 18px; padding: 15px; margin: 10px auto; width: 100%; max-width: 350px; display: block; cursor: pointer; border-radius: 8px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
         button:active { transform: translateY(2px); box-shadow: none; }
@@ -21,25 +21,77 @@
         .btn-green { background-color: #2ecc71; color: white; }
         .btn-gray { background-color: #7f8c8d; color: white; padding: 10px; font-size: 16px; width: 90%; }
         
-        /* 更新ボタン（赤色で少し小さめに） */
+        /* 更新ボタン */
         .btn-reload { background-color: #e74c3c; color: white; padding: 10px; font-size: 14px; margin-top: 30px; width: auto; display: inline-block; }
-
-        .btn-small { width: auto; display: inline-block; padding: 5px 15px; font-size: 14px; margin: 5px; }
+        .btn-small { width: auto; display: inline-block; padding: 5px 15px; font-size: 13px; margin: 3px; }
         
         .hidden { display: none; }
 
-        .category-title { background: #eee; padding: 5px; font-weight: bold; margin-bottom: 5px; }
-        .ingredient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+        /* 食材リストの表示設定（ここを調整しました） */
+        .category-title { background: #eee; padding: 5px; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         
-        .ingredient-item { display: flex; align-items: center; background: #fafafa; border: 1px solid #ddd; padding: 5px; border-radius: 4px; }
-        .handle { cursor: grab; padding: 0 5px; color: #aaa; font-size: 18px; user-select: none; }
-        .ingredient-item input[type="checkbox"] { transform: scale(1.3); margin: 0 8px; }
-        .ingredient-name { border: none; background: transparent; font-size: 16px; width: 100%; border-bottom: 1px dashed #ccc; }
-        .btn-delete { background: none; border: none; color: #e74c3c; font-weight: bold; font-size: 18px; cursor: pointer; padding: 0 8px; box-shadow: none; width: auto; margin: 0; }
+        /* スマホで見やすいように列の幅を調整 */
+        .ingredient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 5px; }
+        
+        /* 食材アイテムのレイアウト修正（文字幅確保） */
+        .ingredient-item { 
+            display: flex; 
+            align-items: center; 
+            background: #fafafa; 
+            border: 1px solid #ddd; 
+            padding: 3px; /* 余白を減らしてスペース確保 */
+            border-radius: 4px; 
+            height: 40px; /* 高さを固定して安定させる */
+        }
+        
+        /* 並び替えハンドル */
+        .handle { 
+            cursor: grab; 
+            padding: 0 2px; /* 余白削減 */
+            color: #aaa; 
+            font-size: 20px; 
+            user-select: none; 
+            min-width: 20px; /* 押しやすい最低限の幅 */
+        }
+        
+        /* チェックボックス */
+        .ingredient-item input[type="checkbox"] { 
+            transform: scale(1.2); 
+            margin: 0 3px; /* 余白削減 */
+        }
+        
+        /* 食材名入力（★ここが修正の肝です） */
+        .ingredient-name { 
+            border: none; 
+            background: transparent; 
+            font-size: 15px; /* 少しだけ小さくして多く表示 */
+            border-bottom: 1px dashed #ccc; 
+            
+            /* 以下の設定で「残りの幅を全部使う」ようにします */
+            flex: 1; 
+            min-width: 0; /* これが無いと縮まないことがあります */
+            padding: 0 2px;
+        }
+        
+        /* 削除ボタン */
+        .btn-delete { 
+            background: none; 
+            border: none; 
+            color: #e74c3c; 
+            font-weight: bold; 
+            font-size: 20px; 
+            cursor: pointer; 
+            padding: 0 5px; /* 余白削減 */
+            box-shadow: none; 
+            width: auto; 
+            margin: 0;
+            line-height: 1;
+        }
 
-        .rice-list li { background: white; margin: 5px 0; padding: 10px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
-        .gram-input { font-size: 18px; padding: 5px; width: 70px; text-align: right; }
-        .name-input { font-size: 16px; width: 100px; border: none; border-bottom: 1px solid #ccc; }
+        /* ご飯リスト */
+        .rice-list li { background: white; margin: 5px 0; padding: 8px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
+        .gram-input { font-size: 18px; padding: 5px; width: 60px; text-align: right; }
+        .name-input { font-size: 16px; width: 90px; border: none; border-bottom: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -70,13 +122,13 @@
         </div>
 
         <div class="section-box">
-            <div class="category-title">お肉・魚</div>
+            <div class="category-title">お肉・魚 <span style="font-size:12px; font-weight:normal;">(≡で並び替え)</span></div>
             <div id="list-meat" class="ingredient-grid"></div>
             <button class="btn-small btn-green" onclick="addIngredient('list-meat')">＋ 追加</button>
         </div>
 
         <div class="section-box">
-            <div class="category-title">野菜・その他</div>
+            <div class="category-title">野菜・その他 <span style="font-size:12px; font-weight:normal;">(≡で並び替え)</span></div>
             <div id="list-veg" class="ingredient-grid"></div>
             <button class="btn-small btn-green" onclick="addIngredient('list-veg')">＋ 追加</button>
         </div>
@@ -107,43 +159,34 @@
             loadData(); // 保存されたデータを読み込む
             
             // 並び替え機能（SortableJS）
-            // 並び替えた直後に自動保存(saveData)するように設定
             makeSortable('list-meat');
             makeSortable('list-veg');
         };
 
         // --- 強制リロード機能 ---
         function forceReload() {
-            // キャッシュを無視して新しいバージョンを取得しようとします
             const currentUrl = window.location.href.split('?')[0];
             window.location.href = currentUrl + '?t=' + new Date().getTime();
         }
 
         // --- データ保存・読込機能 ---
         function saveData() {
-            // 1. 食材リスト（肉・魚）の状態を取得
             const meatData = getListState('list-meat');
-            // 2. 食材リスト（野菜）の状態を取得
             const vegData = getListState('list-veg');
-            // 3. ご飯メンバーの状態を取得
             const riceData = getRiceState();
-
-            // まとめて保存
             const appData = { meat: meatData, veg: vegData, rice: riceData };
             localStorage.setItem('cookingApp_v1', JSON.stringify(appData));
         }
 
         function loadData() {
             const json = localStorage.getItem('cookingApp_v1');
-            
             if (json) {
-                // 保存データがある場合
                 const data = JSON.parse(json);
                 renderIngredients('list-meat', data.meat);
                 renderIngredients('list-veg', data.veg);
                 renderRiceMembers(data.rice);
             } else {
-                // 初回（データがない場合）は初期値を使用
+                // 初回データ
                 const initMeat = [{name:"豚肉", checked:false}, {name:"鶏肉", checked:false}, {name:"ひき肉", checked:false}, {name:"牛肉", checked:false}, {name:"鮭", checked:false}];
                 const initVeg = [{name:"キャベツ", checked:false}, {name:"玉ねぎ", checked:false}, {name:"人参", checked:false}, {name:"じゃがいも", checked:false}, {name:"卵", checked:false}, {name:"豆腐", checked:false}];
                 const initRice = [
@@ -155,10 +198,9 @@
                 renderIngredients('list-veg', initVeg);
                 renderRiceMembers(initRice);
             }
-            calculateRice(); // 計算実行
+            calculateRice();
         }
 
-        // --- 画面の状態を取得するヘルパー関数 ---
         function getListState(parentId) {
             const list = [];
             const items = document.getElementById(parentId).children;
@@ -181,10 +223,9 @@
             return list;
         }
 
-        // --- 描画関数 ---
         function renderIngredients(parentId, dataArray) {
             const container = document.getElementById(parentId);
-            container.innerHTML = ''; // 一旦クリア
+            container.innerHTML = ''; 
             dataArray.forEach(item => {
                 createItem(parentId, item.name, item.checked);
             });
@@ -192,7 +233,7 @@
 
         function renderRiceMembers(dataArray) {
             const ul = document.getElementById('rice-list');
-            ul.innerHTML = ''; // クリア
+            ul.innerHTML = '';
             dataArray.forEach((m, i) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
@@ -216,7 +257,7 @@
         }
         function showMainMenu() { showScreen('main-menu'); }
 
-        // --- 食材機能（追加・削除・並び替え） ---
+        // --- 食材機能 ---
         function createItem(parentId, name, isChecked = false) {
             const div = document.createElement('div');
             div.className = 'ingredient-item';
@@ -231,12 +272,12 @@
 
         function addIngredient(parentId) {
             createItem(parentId, "");
-            saveData(); // 追加したら保存
+            saveData();
         }
 
         function deleteItem(btn) {
             btn.parentElement.remove();
-            saveData(); // 削除したら保存
+            saveData();
         }
 
         function makeSortable(elementId) {
@@ -244,7 +285,7 @@
                 handle: '.handle',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
-                onEnd: function() { saveData(); } // 並び替えたら保存
+                onEnd: function() { saveData(); }
             });
         }
 
