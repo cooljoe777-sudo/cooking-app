@@ -14,112 +14,74 @@
             color: #333;
         }
         h1 {
-            color: #2c3e50;
             font-size: 24px;
             margin-bottom: 20px;
         }
         
-        /* --- メインメニューのスタイル修正 --- */
         #main-menu {
             max-width: 400px;
             margin: 0 auto;
         }
+
+        /* --- アプリの目的などのテキストエリア --- */
         .intro-section {
             background: #fff;
             padding: 15px;
-            border-radius: 10px;
+            border: 1px solid #ccc; /* 影をなくしシンプルな線にしました */
             text-align: left;
             margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             font-size: 14px;
-            line-height: 1.6;
-        }
-        .intro-section h3 {
-            margin-top: 0;
-            color: #e67e22;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
         }
 
+        /* --- ボタンのスタイル（大きさとはみ出し防止のみ適用） --- */
         button {
             font-size: 18px;
             padding: 15px;
-            margin: 10px auto; /* 中央寄せ */
-            width: 90%;        /* 画面からはみ出さないように幅を制限 */
-            max-width: 350px;  /* PCで見ても大きすぎないように */
-            display: block;    /* 縦に並べる */
-            border-radius: 8px;
-            border: none;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 350px; /* PCではみ出しすぎないように */
+            display: block;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.1s;
-        }
-        button:active {
-            transform: translateY(2px);
         }
 
-        /* 各ボタンの色 */
-        .btn-menu { background-color: #3498db; color: white; }
-        .btn-rice { background-color: #e67e22; color: white; }
-        .btn-calc { background-color: #2ecc71; color: white; }
-        .btn-back { background-color: #95a5a6; color: white; margin: 20px auto; }
-        
-        /* 操作用ボタン（全選択など） */
-        .action-btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
+        /* 戻るボタン（上と下） */
+        .btn-back {
+            background-color: #999;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
         }
-        .btn-small {
-            width: auto;
-            padding: 10px 20px;
-            font-size: 14px;
-            margin: 0;
-            display: inline-block;
-        }
-        .btn-select { background-color: #3498db; color: white; }
-        .btn-clear { background-color: #e74c3c; color: white; }
 
-        /* --- 画面切り替え --- */
+        /* --- 画面切り替え用 --- */
         .hidden { display: none; }
 
-        /* --- 食材リストのテーブル風表示 --- */
+        /* --- 食材リストの表示（表のように整列） --- */
         .category-box {
             background: #fff;
             margin-bottom: 20px;
-            border-radius: 8px;
             padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #ccc;
         }
         .category-title {
-            background: #dfe6e9;
-            padding: 8px;
+            background: #eee;
+            padding: 5px;
             font-weight: bold;
-            border-radius: 4px;
             margin-bottom: 10px;
             text-align: left;
         }
         .ingredient-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 自動で列を調整 */
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* 自動で列を整列 */
+            gap: 5px;
             text-align: left;
         }
         .ingredient-item {
-            display: flex;
-            align-items: center;
-            background: #f9f9f9;
-            padding: 8px;
-            border-radius: 4px;
+            display: block;
+            padding: 5px;
             border: 1px solid #eee;
         }
-        .ingredient-item input {
-            margin-right: 10px;
-            transform: scale(1.3); /* チェックボックスを少し大きく */
-        }
 
-        /* --- ご飯計算のスタイル --- */
+        /* --- ご飯計算リスト --- */
         .rice-list {
             list-style: none;
             padding: 0;
@@ -131,26 +93,25 @@
             background: white;
             margin: 5px 0;
             padding: 10px;
-            border-radius: 5px;
+            border-bottom: 1px solid #ccc;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        /* 名前編集用の入力欄 */
+        
+        /* 名前入力欄 */
         .name-input {
             font-size: 16px;
             padding: 5px;
             width: 120px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
         }
-        .rice-controls button {
-            width: 30px;
-            height: 30px;
-            padding: 0;
-            margin: 0 5px;
-            font-size: 16px;
-            display: inline-block;
+        
+        /* グラム直接入力欄（+-ボタンは廃止） */
+        .gram-input {
+            font-size: 18px;
+            padding: 5px;
+            width: 80px;
+            text-align: right;
         }
     </style>
 </head>
@@ -160,14 +121,14 @@
         <h1>ホーム画面</h1>
 
         <div class="intro-section">
-            <h3>🍳 アプリの目的</h3>
-            <p><strong>キッカケ:</strong> 毎日の献立作りと計算の負担を減らすために作成しました。</p>
-            <p><strong>目的:</strong> 職員の判断を補助し、よりスムーズな調理準備をサポートする道具です。</p>
-            <p><strong>アドバイス:</strong> AI検索は便利ですが、在庫状況に合わせて最終的な量は人間が調整してください。</p>
+            <h3>アプリの目的</h3>
+            <p><strong>キッカケ:</strong> 毎日の献立作りと計算の負担を減らすため。</p>
+            <p><strong>目的:</strong> 職員の判断を補助し、スムーズな調理準備をするための道具。</p>
+            <p><strong>アドバイス:</strong> AI検索は便利ですが、在庫に合わせて量は人間が調整してください。</p>
         </div>
 
-        <button class="btn-menu" onclick="showScreen('meal-planning')">献立を考える</button>
-        <button class="btn-rice" onclick="showScreen('rice-calculation')">ご飯の量を計算</button>
+        <button onclick="showScreen('meal-planning')">献立を考える</button>
+        <button onclick="showScreen('rice-calculation')">ご飯の量を計算</button>
     </div>
 
     <div id="meal-planning" class="hidden">
@@ -175,39 +136,30 @@
 
         <h2>冷蔵庫にあるものは？</h2>
         
-        <div class="action-btn-group">
-            <button class="btn-small btn-select" onclick="toggleAll(true)">全選択</button>
-            <button class="btn-small btn-clear" onclick="toggleAll(false)">全解除</button>
+        <div style="margin-bottom: 15px;">
+            <button style="display:inline-block; width:auto; padding:10px;" onclick="toggleAll(true)">全選択</button>
+            <button style="display:inline-block; width:auto; padding:10px;" onclick="toggleAll(false)">全解除</button>
         </div>
 
         <form id="ingredient-form">
             <div class="category-box">
-                <div class="category-title">お肉・魚</div>
+                <div class="category-title">食材リスト</div>
                 <div class="ingredient-grid">
                     <label class="ingredient-item"><input type="checkbox" name="food" value="豚肉"> 豚肉</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="鶏肉"> 鶏肉</label>
-                    <label class="ingredient-item"><input type="checkbox" name="food" value="ひき肉"> ひき肉</label>
-                    <label class="ingredient-item"><input type="checkbox" name="food" value="牛肉"> 牛肉</label>
-                    <label class="ingredient-item"><input type="checkbox" name="food" value="鮭"> 鮭</label>
-                    <label class="ingredient-item"><input type="checkbox" name="food" value="サバ"> サバ</label>
-                </div>
-            </div>
-
-            <div class="category-box">
-                <div class="category-title">野菜・その他</div>
-                <div class="ingredient-grid">
+                    <label class="ingredient-item"><input type="checkbox" name="food" value="キャベツ"> キャベツ</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="玉ねぎ"> 玉ねぎ</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="人参"> 人参</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="じゃがいも"> じゃがいも</label>
-                    <label class="ingredient-item"><input type="checkbox" name="food" value="キャベツ"> キャベツ</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="卵"> 卵</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="豆腐"> 豆腐</label>
-                </div>
+                    </div>
             </div>
-            
-            </form>
+        </form>
 
-        <button class="btn-menu" onclick="generateMenu()">献立を提案する！</button>
+        <button onclick="generateMenu()">献立を提案する！</button>
+        
+        <button onclick="googleSearch()">Googleで検索する</button>
         
         <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
     </div>
@@ -219,18 +171,18 @@
         <ul id="member-list" class="rice-list">
             </ul>
         
-        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px;">
-            <h3 style="margin:0 0 10px 0;">合計: <span id="total-rice" style="color:#e67e22; font-size: 24px;">0</span> g</h3>
+        <div style="background: #fff; padding: 15px; margin-top: 20px; border:1px solid #ccc;">
+            <h3 style="margin:0 0 10px 0;">合計: <span id="total-rice" style="font-size: 24px;">0</span> g</h3>
             <p>（約 <span id="total-gou">0.0</span> 合）</p>
         </div>
 
-        <button class="btn-calc" onclick="calculateRice()">計算する</button>
+        <button onclick="calculateRice()">計算する</button>
+        
         <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
     </div>
 
     <script>
         // --- データ初期設定 ---
-        // 名前を自由に変えられるように、初期値だけ設定しておきます
         const defaultMembers = [
             { id: 'userA', name: '利用者A', amount: 150 },
             { id: 'userB', name: '利用者B', amount: 150 },
@@ -244,18 +196,16 @@
             { id: 'staff2', name: '職員2', amount: 200 },
         ];
 
-        // 画面の初期化
         window.onload = function() {
             renderRiceList();
         };
 
-        // 画面切り替え関数
         function showScreen(screenId) {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('meal-planning').classList.add('hidden');
             document.getElementById('rice-calculation').classList.add('hidden');
             document.getElementById(screenId).classList.remove('hidden');
-            window.scrollTo(0, 0); // 画面トップへ移動
+            window.scrollTo(0, 0);
         }
 
         function showMainMenu() {
@@ -268,7 +218,13 @@
             checkboxes.forEach(cb => cb.checked = isChecked);
         }
 
+        // 献立を提案するボタン（現状は検索と同じ動作だが、将来的に機能を分けるため関数を分離）
         function generateMenu() {
+            googleSearch(); 
+        }
+
+        // Google検索機能
+        function googleSearch() {
             const checkboxes = document.querySelectorAll('input[name="food"]:checked');
             if (checkboxes.length === 0) {
                 alert("食材が選択されていません");
@@ -280,12 +236,11 @@
                 query += cb.value + " ";
             });
             
-            // Google検索 (AI概要が出ることを期待して検索)
             const url = `https://www.google.com/search?q=${encodeURIComponent(query + "レシピ 献立")}`;
             window.open(url, '_blank');
         }
 
-        // --- ご飯計算機能 ---
+        // --- ご飯計算機能（直接入力・計算ボタン式） ---
         function renderRiceList() {
             const listContainer = document.getElementById('member-list');
             listContainer.innerHTML = '';
@@ -294,33 +249,30 @@
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <input type="text" class="name-input" value="${member.name}" id="name-${index}">
-                    <div class="rice-controls">
-                        <button onclick="adjustRice(${index}, -10)">-</button>
-                        <span id="amount-${index}" style="font-weight:bold; width: 40px; display:inline-block; text-align:center;">${member.amount}</span>g
-                        <button onclick="adjustRice(${index}, 10)">+</button>
+                    <div style="display:flex; align-items:center;">
+                        <input type="number" class="gram-input" value="${member.amount}" id="amount-${index}">
+                        <span style="margin-left:5px;">g</span>
                     </div>
                 `;
                 listContainer.appendChild(li);
             });
-            calculateRice(); // 初期合計を表示
-        }
-
-        function adjustRice(index, change) {
-            defaultMembers[index].amount += change;
-            if (defaultMembers[index].amount < 0) defaultMembers[index].amount = 0;
-            document.getElementById(`amount-${index}`).innerText = defaultMembers[index].amount;
             calculateRice();
         }
 
         function calculateRice() {
             let total = 0;
-            defaultMembers.forEach(m => total += m.amount);
+            // 画面に入力されている値を全て取得して計算
+            defaultMembers.forEach((member, index) => {
+                const inputVal = document.getElementById(`amount-${index}`).value;
+                let val = parseInt(inputVal);
+                if (isNaN(val) || val < 0) val = 0;
+                
+                // データ自体も更新しておく
+                defaultMembers[index].amount = val;
+                total += val;
+            });
             
-            // 合計グラム表示
             document.getElementById('total-rice').innerText = total;
-
-            // 合計算出 (1合 = 約330g炊き上がり換算 ※目安)
-            // 生米1合(150g) → 炊飯後約330〜350g
             const gou = (total / 330).toFixed(1);
             document.getElementById('total-gou').innerText = gou;
         }
