@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>グループホーム調理助手 v3</title>
+<style>
+    /* 全体のデザイン */
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; 
+        background-color: #f0f8ff; 
+        margin: 0; 
+        padding: 0; 
+        color: #333;
+        padding-bottom: 40px;
+    }
+    
+    header {
+        background-color: #2c3e50;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .screen { display: none; padding: 15px; }
+    .active { display: block; }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+    }
+
+    /* タイトルと一括ボタンのレイアウト */
+    .cat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #2980b9;
+        padding-bottom: 5px;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+    h3 { font-size: 16px; color: #2980b9; margin: 0; }
+    
+    /* 一括操作用の小さなボタン */
+    .mini-btn-group button {
+        background-color: #ecf0f1;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        color: #2c3e50;
+    }
+    .mini-btn-group button:active { background-color: #bdc3c7; }
+
+    /* メインボタン類 */
+    .btn-big {
+        display: block; width: 100%; padding: 20px; margin-bottom: 15px;
+        font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 12px; cursor: pointer;
+        text-align: center; text-decoration: none;
+    }
+    .btn-menu { background-color: #e67e22; box-shadow: 0 4px 0 #d35400; }
+    .btn-rice { background-color: #27ae60; box-shadow: 0 4px 0 #219150; }
+    .btn-action { background-color: #3498db; box-shadow: 0 4px 0 #2980b9; }
+    .btn-back { background-color: #95a5a6; padding: 10px; font-size: 16px; margin-bottom: 10px; width: auto; display: inline-block; }
+    .btn-google { background-color: #4285F4; margin-top: 10px; }
+    .btn-big:active { transform: translateY(4px); box-shadow: none; }
+
+    /* チェックボックスリスト */
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .checkbox-item {
+        background: #f9f9f9; border: 1px solid #ddd; padding: 8px 12px; border-radius: 20px;
+        font-size: 14px; cursor: pointer; display: flex; align-items: center;
+    }
+    .checkbox-item input { margin-right: 5px; transform: scale(1.3); }
+    .checkbox-item.checked { background-color: #dff9fb; border-color: #81ecec; font-weight: bold; }
+
+    /* お米計算用 */
+    .user-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+    input[type="number"] { width: 60px; padding: 5px; font-size: 16px; text-align: right; border: 1px solid #ccc; border-radius: 4px; }
+
+    /* 結果表示エリア */
+    #proposalArea { background-color: #fff3cd; border: 2px solid #ffeeba; display: none; }
+    .recipe-box { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #ccc; }
+
+    /* 編集画面用 */
+    .edit-list textarea { width: 100%; height: 100px; padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px; }
+    .small-text { font-size: 12px; color: #666; }
+
+</style>
+</head>
+<body>
+
+<header>調理助手アプリ</header>
+
+<div id="screen-top" class="screen active">
+    <p style="text-align:center; margin-bottom:20px;">今日は何をしますか？</p>
+    <button class="btn-big btn-menu" onclick="changeScreen('screen-menu')">🍳 献立を考える</button>
+    <button class="btn-big btn-rice" onclick="changeScreen('screen-rice')">🍚 ご飯の量を計算</button>
+    <div style="text-align:center; margin-top:30px;">
+        <button onclick="changeScreen('screen-setting')" style="background:none; border:none; color:#7f8c8d; text-decoration:underline; cursor:pointer;">⚙️ 食材リストを編集する</button>
+    </div>
+</div>
+
+<div id="screen-rice" class="screen">
+    <button class="btn-big btn-back" onclick="changeScreen('screen-top')">← 戻る</button>
+    <div class="card">
+        <div class="cat-header">
+            <h3 style="color:#2c3e50;">食べる人数と量</h3>
+            <div class="mini-btn-group">
+                <button onclick="toggleAll('riceUserList', true)">全</button>
+                <button onclick="toggleAll('riceUserList', false)">解除</button>
+            </div>
+        </div>
+        <div id="riceUserList"></div>
+    </div>
+    <button class="btn-big btn-rice" onclick="calcRice()">計算する</button>
+    
+    <div class="card" id="riceResult" style="display:none; background-color:#dff9fb; text-align:center;">
+        <div style="font-size:18px;">必要な生米</div>
+        <div style="font-size:40px; font-weight:bold; color:#c0392b;"><span id="gouVal">0</span> 合</div>
+        <div class="small-text">※0.5合単位で切り上げ計算</div>
+    </div>
+</div>
+
+<div id="screen-menu" class="screen">
+    <button class="btn-big btn-back" onclick="changeScreen('screen-top')">← 戻る</button>
+    
+    <div class="card">
+        <h2>冷蔵庫にあるもの</h2>
+        
+        <div class="cat-header">
+            <h3>🥦 野菜・きのこ</h3>
+            <div class="mini-btn-group">
+                <button onclick="toggleAll('list-veg', true)">全</button>
+                <button onclick="toggleAll('list-veg', false)">解除</button>
+            </div>
+        </div>
+        <div id="list-veg" class="checkbox-group"></div>
+        
+        <div class="cat-header">
+            <h3>🥩 肉・加工品</h3>
+            <div class="mini-btn-group">
+                <button onclick="toggleAll('list-meat', true)">全</button>
+                <button onclick="toggleAll('list-meat', false)">解除</button>
+            </div>
+        </div>
+        <div id="list-meat" class="checkbox-group"></div>
+        
+        <div class="cat-header">
+            <h3>🥫 その他・乾物</h3>
+            <div class="mini-btn-group">
+                <button onclick="toggleAll('list-other', true)">全</button>
+                <button onclick="toggleAll('list-other', false)">解除</button>
+            </div>
+        </div>
+        <div id="list-other" class="checkbox-group"></div>
+
+        <div class="cat-header">
+            <h3>🧂 調味料（あるもの）</h3>
+            <div class="mini-btn-group">
+                <button onclick="toggleAll('list-seasoning', true)">全</button>
+                <button onclick="toggleAll('list-seasoning', false)">解除</button>
+            </div>
+        </div>
+        <div id="list-seasoning" class="checkbox-group"></div>
+    </div>
+
+    <div class="card">
+        <h2>食べる人数</h2>
+        <select id="eaterCount" style="font-size:18px; padding:5px; width:100%;">
+            <option value="4">4人</option>
+            <option value="6">6人</option>
+            <option value="8" selected>8人</option>
+            <option value="10">10人</option>
+            <option value="12">12人</option>
+        </select>
+    </div>
+
+    <button class="btn-big btn-action" onclick="proposeMenu()">献立を提案する！</button>
+
+    <div id="proposalArea" class="card">
+        <div id="proposalContent"></div>
+        <div style="margin-top:20px; text-align:center;">
+            <p class="small-text">もっと他のレシピを見たいですか？</p>
+            <button class="btn-big btn-google" onclick="searchGoogle()">🔍 Googleでレシピ検索</button>
+        </div>
+    </div>
+</div>
+
+<div id="screen-setting" class="screen">
+    <button class="btn-big btn-back" onclick="changeScreen('screen-top')">← 戻る</button>
+    <div class="card">
+        <h2>食材リストの編集</h2>
+        <p class="small-text">ここに入力した内容は保存されます。<br>各食材を「、」か「改行」で区切ってください。</p>
+        
+        <h3>野菜リスト</h3>
+        <div class="edit-list"><textarea id="edit-veg"></textarea></div>
+        
+        <h3>肉リスト</h3>
+        <div class="edit-list"><textarea id="edit-meat"></textarea></div>
+        
+        <h3>その他リスト</h3>
+        <div class="edit-list"><textarea id="edit-other"></textarea></div>
+
+        <h3>調味料リスト</h3>
+        <div class="edit-list"><textarea id="edit-seasoning"></textarea></div>
+    </div>
+    <button class="btn-big btn-menu" onclick="saveSettings()">保存して戻る</button>
+    <div style="text-align:center; margin-top:20px;">
+        <button onclick="resetDefault()" style="background:#e74c3c; color:white; border:none; padding:10px; border-radius:5px;">初期状態に戻す</button>
+    </div>
+</div>
+
+<script>
+    // === 1. 初期データ ===
+    const defaultData = {
+        veg: "玉葱、にんじん、しいたけ、エリンギ、えのき、ほうれん草、小松菜、大根、チンゲン菜、キャベツ、冷凍コーン、冷凍ほうれん草、れんこん、白菜",
+        meat: "豚ミンチ、鶏ミンチ、豚肉切落とし、カット鶏胸肉、ベーコン、ウインナー、ロースハム、卵、肉団子",
+        other: "食パン、米、豆腐、乾燥ワカメ、冷凍きざみ揚げ、ツナ缶、パスタ、冷凍うどん、乾燥うどん、小麦粉、お好み焼き粉、片栗粉、ナチュラルチーズ、胡麻、かつおぶし、麩、春雨",
+        seasoning: "なたね油、胡麻油、醤油、塩コショウ、塩、砂糖、味の素、味噌、ウェイパー、顆粒かつおだし、なごみつゆ、料理酒、本みりん、無塩バター、チューブ生姜、チューブにんにく、酢、白だし、とんかつソース、ウスターソース、焼肉のタレ、オイスターソース、マヨネーズ、ケチャップ、カレー粉、ホワイトソースの素、ミートソース"
+    };
+
+    const riceUsers = [
+        { name: "利用者A", g: 150 }, { name: "利用者B", g: 150 },
+        { name: "利用者C", g: 150 }, { name: "利用者D", g: 150 },
+        { name: "利用者E", g: 150 }, { name: "利用者F", g: 150 },
+        { name: "利用者G", g: 150 }, { name: "利用者H", g: 150 },
+        { name: "職員1", g: 200 }, { name: "職員2", g: 200 }
+    ];
+
+    // === 2. 起動時 ===
+    let currentData = {};
+    window.onload = function() {
+        loadData();
+        renderRiceCalc();
+        renderCheckboxes();
+    };
+
+    function loadData() {
+        const saved = localStorage.getItem("cookingApp_v3"); // v3に変更して心機一転
+        if (saved) {
+            currentData = JSON.parse(saved);
+        } else {
+            currentData = JSON.parse(JSON.stringify(defaultData));
+        }
+        document.getElementById("edit-veg").value = currentData.veg;
+        document.getElementById("edit-meat").value = currentData.meat;
+        document.getElementById("edit-other").value = currentData.other;
+        document.getElementById("edit-seasoning").value = currentData.seasoning;
+    }
+
+    function saveSettings() {
+        currentData.veg = document.getElementById("edit-veg").value;
+        currentData.meat = document.getElementById("edit-meat").value;
+        currentData.other = document.getElementById("edit-other").value;
+        currentData.seasoning = document.getElementById("edit-seasoning").value;
+        localStorage.setItem("cookingApp_v3", JSON.stringify(currentData));
+        renderCheckboxes();
+        alert("リストを保存しました！");
+        changeScreen('screen-top');
+    }
+
+    function resetDefault() {
+        if(confirm("本当に初期状態に戻しますか？")){
+            localStorage.removeItem("cookingApp_v3");
+            location.reload();
+        }
+    }
+
+    // === 3. 画面描画 ===
+    function renderCheckboxes() {
+        createChecks(currentData.veg, "list-veg");
+        createChecks(currentData.meat, "list-meat");
+        createChecks(currentData.other, "list-other");
+        createChecks(currentData.seasoning, "list-seasoning");
+    }
+
+    function createChecks(str, elemId) {
+        const list = str.split(/[,、\n]+/).map(s => s.trim()).filter(s => s);
+        const container = document.getElementById(elemId);
+        container.innerHTML = "";
+        list.forEach(item => {
+            const label = document.createElement("label");
+            label.className = "checkbox-item";
+            label.innerHTML = `<input type="checkbox" value="${item}" onchange="toggleColor(this)">${item}`;
+            container.appendChild(label);
+        });
+    }
+
+    function toggleColor(input) {
+        if(input.checked) input.parentElement.classList.add("checked");
+        else input.parentElement.classList.remove("checked");
+    }
+
+    function renderRiceCalc() {
+        const container = document.getElementById("riceUserList");
+        container.innerHTML = "";
+        riceUsers.forEach(u => {
+            container.innerHTML += `
+                <div class="user-row">
+                    <label><input type="checkbox" class="rice-check" checked onchange="toggleRiceColor(this)"> ${u.name}</label>
+                    <div><input type="number" class="rice-val" value="${u.g}" step="10"> g</div>
+                </div>
+            `;
+        });
+    }
+    
+    function toggleRiceColor(input) {
+         // シンプルな行背景変更など必要ならここに追加
+    }
+
+    // ★★★ 一括操作機能（新規追加） ★★★
+    function toggleAll(containerId, isChecked) {
+        const container = document.getElementById(containerId);
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.checked = isChecked;
+            toggleColor(cb); // 色も更新
+        });
+    }
+
+    // === 4. 計算・提案 ===
+    function calcRice() {
+        let total = 0;
+        let count = 0;
+        document.querySelectorAll(".user-row").forEach(row => {
+            if (row.querySelector(".rice-check").checked) {
+                total += parseInt(row.querySelector(".rice-val").value) || 0;
+                count++;
+            }
+        });
+        if (count === 0) { alert("食べる人が選ばれていません"); return; }
+        let rawGou = total / 340;
+        let result = Math.ceil(rawGou * 2) / 2;
+        document.getElementById("gouVal").innerText = result.toFixed(1);
+        document.getElementById("riceResult").style.display = "block";
+    }
+
+    function proposeMenu() {
+        const getChecked = (id) => Array.from(document.querySelectorAll(`#${id} input:checked`)).map(c => c.value);
+        const veg = getChecked("list-veg");
+        const meat = getChecked("list-meat");
+        const other = getChecked("list-other");
+        const season = getChecked("list-seasoning");
+        const people = document.getElementById("eaterCount").value;
+        const allIng = [...veg, ...meat, ...other];
+
+        if (allIng.length === 0) { alert("食材を選んでください！"); return; }
+        
+        // 検索用保存
+        window.selectedIngredients = allIng;
+
+        let html = "";
+        
+        // シンプルな提案ロジック（後で強化可能）
+        if (meat.length > 0 && veg.length > 0) {
+            let sauce = "焼肉のタレ + オイスターソース";
+            if (season.includes("味噌")) sauce = "味噌 + 砂糖 + 酒 + 味の素";
+            html += `<div class="recipe-box"><h3>🍳 ガッツリ炒め</h3><p><b>具材：</b>${meat.join("、")}、${veg.join("、")}</p><p><b>味付：</b>${sauce}</p></div>`;
+        }
+        if (other.some(x => x.includes("うどん") || x.includes("パスタ") || x.includes("麺"))) {
+            html += `<div class="recipe-box"><h3>🍜 麺料理</h3><p>汁物代わりやメインに。</p></div>`;
+        }
+        if (html === "") {
+            html += `<div class="recipe-box"><h3>🥘 おまかせ調理</h3><p>選んだ食材を焼肉のタレで炒めれば間違いなし！</p></div>`;
+        }
+
+        document.getElementById("proposalContent").innerHTML = html;
+        document.getElementById("proposalArea").style.display = "block";
+        document.getElementById("proposalArea").scrollIntoView({behavior: "smooth"});
+    }
+
+    function searchGoogle() {
+        if (!window.selectedIngredients || window.selectedIngredients.length === 0) {
+            alert("先に食材を選んでください");
+            return;
+        }
+        const query = window.selectedIngredients.join(" ") + " レシピ";
+        const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        window.open(url, '_blank');
+    }
+
+    function changeScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
