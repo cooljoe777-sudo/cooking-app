@@ -216,4 +216,114 @@
         <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
 
         <h2>ご飯の量を計算</h2>
-        <ul id="member-list" class
+        <ul id="member-list" class="rice-list">
+            </ul>
+        
+        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="margin:0 0 10px 0;">合計: <span id="total-rice" style="color:#e67e22; font-size: 24px;">0</span> g</h3>
+            <p>（約 <span id="total-gou">0.0</span> 合）</p>
+        </div>
+
+        <button class="btn-calc" onclick="calculateRice()">計算する</button>
+        <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
+    </div>
+
+    <script>
+        // --- データ初期設定 ---
+        // 名前を自由に変えられるように、初期値だけ設定しておきます
+        const defaultMembers = [
+            { id: 'userA', name: '利用者A', amount: 150 },
+            { id: 'userB', name: '利用者B', amount: 150 },
+            { id: 'userC', name: '利用者C', amount: 150 },
+            { id: 'userD', name: '利用者D', amount: 150 },
+            { id: 'userE', name: '利用者E', amount: 100 },
+            { id: 'userF', name: '利用者F', amount: 100 },
+            { id: 'userG', name: '利用者G', amount: 200 },
+            { id: 'userH', name: '利用者H', amount: 200 },
+            { id: 'staff1', name: '職員1', amount: 200 },
+            { id: 'staff2', name: '職員2', amount: 200 },
+        ];
+
+        // 画面の初期化
+        window.onload = function() {
+            renderRiceList();
+        };
+
+        // 画面切り替え関数
+        function showScreen(screenId) {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('meal-planning').classList.add('hidden');
+            document.getElementById('rice-calculation').classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+            window.scrollTo(0, 0); // 画面トップへ移動
+        }
+
+        function showMainMenu() {
+            showScreen('main-menu');
+        }
+
+        // --- 献立機能 ---
+        function toggleAll(isChecked) {
+            const checkboxes = document.querySelectorAll('input[name="food"]');
+            checkboxes.forEach(cb => cb.checked = isChecked);
+        }
+
+        function generateMenu() {
+            const checkboxes = document.querySelectorAll('input[name="food"]:checked');
+            if (checkboxes.length === 0) {
+                alert("食材が選択されていません");
+                return;
+            }
+
+            let query = "";
+            checkboxes.forEach((cb) => {
+                query += cb.value + " ";
+            });
+            
+            // Google検索 (AI概要が出ることを期待して検索)
+            const url = `https://www.google.com/search?q=${encodeURIComponent(query + "レシピ 献立")}`;
+            window.open(url, '_blank');
+        }
+
+        // --- ご飯計算機能 ---
+        function renderRiceList() {
+            const listContainer = document.getElementById('member-list');
+            listContainer.innerHTML = '';
+
+            defaultMembers.forEach((member, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="text" class="name-input" value="${member.name}" id="name-${index}">
+                    <div class="rice-controls">
+                        <button onclick="adjustRice(${index}, -10)">-</button>
+                        <span id="amount-${index}" style="font-weight:bold; width: 40px; display:inline-block; text-align:center;">${member.amount}</span>g
+                        <button onclick="adjustRice(${index}, 10)">+</button>
+                    </div>
+                `;
+                listContainer.appendChild(li);
+            });
+            calculateRice(); // 初期合計を表示
+        }
+
+        function adjustRice(index, change) {
+            defaultMembers[index].amount += change;
+            if (defaultMembers[index].amount < 0) defaultMembers[index].amount = 0;
+            document.getElementById(`amount-${index}`).innerText = defaultMembers[index].amount;
+            calculateRice();
+        }
+
+        function calculateRice() {
+            let total = 0;
+            defaultMembers.forEach(m => total += m.amount);
+            
+            // 合計グラム表示
+            document.getElementById('total-rice').innerText = total;
+
+            // 合計算出 (1合 = 約330g炊き上がり換算 ※目安)
+            // 生米1合(150g) → 炊飯後約330〜350g
+            const gou = (total / 330).toFixed(1);
+            document.getElementById('total-gou').innerText = gou;
+        }
+    </script>
+</body>
+</html>
