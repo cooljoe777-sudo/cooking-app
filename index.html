@@ -23,28 +23,28 @@
             margin: 0 auto;
         }
 
-        /* --- アプリの目的などのテキストエリア --- */
+        /* 説明文エリア */
         .intro-section {
             background: #fff;
             padding: 15px;
-            border: 1px solid #ccc; /* 影をなくしシンプルな線にしました */
+            border: 1px solid #ccc;
             text-align: left;
             margin-bottom: 20px;
             font-size: 14px;
         }
 
-        /* --- ボタンのスタイル（大きさとはみ出し防止のみ適用） --- */
+        /* ボタンのスタイル */
         button {
             font-size: 18px;
             padding: 15px;
             margin: 10px auto;
             width: 90%;
-            max-width: 350px; /* PCではみ出しすぎないように */
+            max-width: 350px;
             display: block;
             cursor: pointer;
         }
 
-        /* 戻るボタン（上と下） */
+        /* 戻るボタン */
         .btn-back {
             background-color: #999;
             color: white;
@@ -52,10 +52,10 @@
             font-size: 16px;
         }
 
-        /* --- 画面切り替え用 --- */
+        /* 画面切り替え */
         .hidden { display: none; }
 
-        /* --- 食材リストの表示（表のように整列） --- */
+        /* 食材リスト（表形式） */
         .category-box {
             background: #fff;
             margin-bottom: 20px;
@@ -71,7 +71,7 @@
         }
         .ingredient-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* 自動で列を整列 */
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 5px;
             text-align: left;
         }
@@ -81,7 +81,7 @@
             border: 1px solid #eee;
         }
 
-        /* --- ご飯計算リスト --- */
+        /* ご飯計算リスト */
         .rice-list {
             list-style: none;
             padding: 0;
@@ -99,14 +99,12 @@
             align-items: center;
         }
         
-        /* 名前入力欄 */
         .name-input {
             font-size: 16px;
             padding: 5px;
             width: 120px;
         }
         
-        /* グラム直接入力欄（+-ボタンは廃止） */
         .gram-input {
             font-size: 18px;
             padding: 5px;
@@ -153,7 +151,7 @@
                     <label class="ingredient-item"><input type="checkbox" name="food" value="じゃがいも"> じゃがいも</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="卵"> 卵</label>
                     <label class="ingredient-item"><input type="checkbox" name="food" value="豆腐"> 豆腐</label>
-                    </div>
+                </div>
             </div>
         </form>
 
@@ -177,7 +175,6 @@
         </div>
 
         <button onclick="calculateRice()">計算する</button>
-        
         <button class="btn-back" onclick="showMainMenu()">トップに戻る</button>
     </div>
 
@@ -212,18 +209,37 @@
             showScreen('main-menu');
         }
 
-        // --- 献立機能 ---
         function toggleAll(isChecked) {
             const checkboxes = document.querySelectorAll('input[name="food"]');
             checkboxes.forEach(cb => cb.checked = isChecked);
         }
 
-        // 献立を提案するボタン（現状は検索と同じ動作だが、将来的に機能を分けるため関数を分離）
+        // --- 【修正】献立提案機能（内部ロジック） ---
         function generateMenu() {
-            googleSearch(); 
+            const checkboxes = document.querySelectorAll('input[name="food"]:checked');
+            if (checkboxes.length === 0) {
+                alert("食材が選択されていません");
+                return;
+            }
+
+            // ★ここに将来、ボスの考案したロジックが入ります。
+            // 今は仮として「ガッツリ炒め」を提案します。
+            
+            let resultMenu = "豚肉とキャベツのガッツリ炒め"; 
+            
+            // 少しだけ賢く（豚肉が入っていなかったら別の名前にする例）
+            let ingredients = [];
+            checkboxes.forEach(cb => ingredients.push(cb.value));
+            
+            if (!ingredients.includes("豚肉")) {
+                resultMenu = "おまかせ野菜炒め";
+            }
+
+            // アラートで提案を表示（Googleには飛びません）
+            alert("【提案メニュー】\n\n" + resultMenu + "\n\n(※これは仮の提案です。今後ここにボスのレシピロジックを追加します)");
         }
 
-        // Google検索機能
+        // --- Google検索機能 ---
         function googleSearch() {
             const checkboxes = document.querySelectorAll('input[name="food"]:checked');
             if (checkboxes.length === 0) {
@@ -240,7 +256,7 @@
             window.open(url, '_blank');
         }
 
-        // --- ご飯計算機能（直接入力・計算ボタン式） ---
+        // --- ご飯計算機能 ---
         function renderRiceList() {
             const listContainer = document.getElementById('member-list');
             listContainer.innerHTML = '';
@@ -261,13 +277,11 @@
 
         function calculateRice() {
             let total = 0;
-            // 画面に入力されている値を全て取得して計算
             defaultMembers.forEach((member, index) => {
                 const inputVal = document.getElementById(`amount-${index}`).value;
                 let val = parseInt(inputVal);
                 if (isNaN(val) || val < 0) val = 0;
                 
-                // データ自体も更新しておく
                 defaultMembers[index].amount = val;
                 total += val;
             });
