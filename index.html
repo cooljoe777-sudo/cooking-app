@@ -1,95 +1,63 @@
 import SwiftUI
 
 struct RiceCalculationView: View {
-    // --- データを記憶する場所 ---
-    // ご飯の量（文字として記憶）
     @State private var riceAmount: String = ""
-    // 単価（文字として記憶）
     @State private var ricePrice: String = ""
     
-    // --- 自動計算の仕組み ---
-    // 入力された数字をもとに、自動で掛け算を行います
     var totalCost: Int {
-        // 数字が入っていない時は「0」として扱います
         let amount = Int(riceAmount) ?? 0
         let price = Int(ricePrice) ?? 0
         return amount * price
     }
     
-    // --- 画面の見た目を作る場所 ---
     var body: some View {
-        // 縦に並べる（スクロール機能は使いません）
         VStack(spacing: 0) {
-            
-            // 上の余白（画面サイズに合わせて伸縮します）
             Spacer()
-            
-            // ■ 入力エリア
-            VStack(spacing: 40) { // 項目同士の間隔を広めに取る
-                
-                // 1. ご飯の量の入力行
+            VStack(spacing: 40) {
                 HStack {
                     Text("ご飯の量")
-                        .font(.system(size: 30, weight: .bold)) // 文字サイズ30・太字
-                    
-                    // 数字入力欄
-                    TextField("0", text: $riceAmount)
-                        .keyboardType(.numberPad) // 数字キーボード
-                        .font(.system(size: 30, weight: .bold)) // 文字と同じサイズ
-                        .multilineTextAlignment(.trailing) // 右寄せ
-                        .frame(width: 120) // 入力欄の幅を固定
-                        .padding(5)
-                        .background(Color(UIColor.systemGray6)) // 薄いグレーの背景
-                        .cornerRadius(8)
-                    
-                    Text("g")
                         .font(.system(size: 30, weight: .bold))
-                }
-                
-                // 2. 単価の入力行
-                HStack {
-                    Text("単　価")
-                        .font(.system(size: 30, weight: .bold)) // 文字サイズ30・太字
-                    
-                    // 数字入力欄
-                    TextField("0", text: $ricePrice)
+                    TextField("0", text: $riceAmount)
                         .keyboardType(.numberPad)
-                        .font(.system(size: 30, weight: .bold)) // 文字と同じサイズ
+                        .font(.system(size: 30, weight: .bold))
                         .multilineTextAlignment(.trailing)
                         .frame(width: 120)
                         .padding(5)
                         .background(Color(UIColor.systemGray6))
                         .cornerRadius(8)
-                    
+                    Text("g")
+                        .font(.system(size: 30, weight: .bold))
+                }
+                HStack {
+                    Text("単　価")
+                        .font(.system(size: 30, weight: .bold))
+                    TextField("0", text: $ricePrice)
+                        .keyboardType(.numberPad)
+                        .font(.system(size: 30, weight: .bold))
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 120)
+                        .padding(5)
+                        .background(Color(UIColor.systemGray6))
+                        .cornerRadius(8)
                     Text("円")
                         .font(.system(size: 30, weight: .bold))
                 }
             }
-            
-            // 区切り線
             Divider()
                 .background(Color.black)
-                .padding(.vertical, 40) // 上下に40の隙間
-                .padding(.horizontal, 20) // 左右に20の隙間
-            
-            // ■ 結果表示エリア（ボタンなし・即表示）
+                .padding(.vertical, 40)
+                .padding(.horizontal, 20)
             HStack {
                 Text("合計金額")
-                    .font(.system(size: 35, weight: .heavy)) // 入力よりさらに太く
-                
-                Spacer() // 左と右を離す
-                
+                    .font(.system(size: 35, weight: .heavy))
+                Spacer()
                 Text("¥ \(totalCost)")
-                    .font(.system(size: 40, weight: .black)) // 最も太く、大きく
-                    .foregroundColor(.blue) // 青色で強調
+                    .font(.system(size: 40, weight: .black))
+                    .foregroundColor(.blue)
             }
-            .padding(.horizontal, 30) // 画面端から少し離す
-            
-            // 下の余白（画面サイズに合わせて伸縮します）
+            .padding(.horizontal, 30)
             Spacer()
-            
         }
-        // 画面の何もないところをタップしたらキーボードを閉じる
         .contentShape(Rectangle())
         .onTapGesture {
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -97,7 +65,6 @@ struct RiceCalculationView: View {
     }
 }
 
-// プレビュー機能（確認用）
 struct RiceCalculationView_Previews: PreviewProvider {
     static var previews: some View {
         RiceCalculationView()
