@@ -153,4 +153,282 @@
         .theme-mech .btn-blue { background-color: #0055aa; border-bottom: 3px solid #003366; }
         .theme-mech .btn-orange { background-color: #ffcc00; color: #333; border-bottom: 3px solid #cc9900; }
         .theme-mech .btn-green { background-color: #009944; border-bottom: 3px solid #006622; }
-        .theme-mech .btn-reload { border-radius: 0; border:
+        .theme-mech .btn-reload { border-radius: 0; border: 1px solid #c0392b; }
+        .theme-mech .btn-return { border-radius: 0; background-color: #555; border-bottom: 2px solid #222; }
+        .theme-mech .rice-list li { border-bottom: 1px solid #999; border-left: 3px solid #e74c3c; }
+
+    </style>
+</head>
+<body id="app-body" class="theme-standard"> 
+    
+    <div id="main-menu" class="screen">
+        <div class="top-container">
+            <h1>献立 & ご飯計算</h1>
+            <p>Select Mode</p>
+
+            <button class="btn-main btn-blue" onclick="changeScreen('meal-planning')">献立を考える</button>
+            <button class="btn-main btn-orange" onclick="changeScreen('rice-calculation')">ご飯の量を計算</button>
+
+            <div style="text-align:center; margin-top: 20px;">
+                <button class="btn-settings" onclick="changeScreen('settings-screen')">⚙ 設定 / Design</button>
+            </div>
+
+            <div style="text-align:center; margin-top: 30px;">
+                <button class="btn-reload" onclick="forceReload()">🔄 アプリを更新 (Reload)</button>
+            </div>
+            
+            <div style="margin-top: 10px; font-size: 10px; opacity: 0.5;">App Factory Final</div>
+        </div>
+    </div>
+
+    <div id="settings-screen" class="screen hidden">
+        <div class="scroll-area">
+            <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+            <h2>設定</h2>
+            <div class="section-box">
+                <div class="category-title">デザインテーマ</div>
+                <div style="text-align: center; padding: 15px;">
+                    <button class="btn-small" style="background:#ddd; color:#333; border:1px solid #999; padding:10px;" onclick="setTheme('theme-standard')">スタンダード</button>
+                    <button class="btn-small" style="background:#0055aa; color:#fff; padding:10px;" onclick="setTheme('theme-mech')">連邦モデル</button>
+                </div>
+            </div>
+            <div style="margin-top:20px; text-align:center;">
+                 <button class="btn-small" style="background:#e74c3c; color:white; padding:8px;" onclick="resetData()">⚠ データをリセット</button>
+            </div>
+            <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+        </div>
+    </div>
+
+    <div id="meal-planning" class="screen hidden">
+        <div class="scroll-area">
+            <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+            <h2>冷蔵庫チェック</h2>
+
+            <div style="text-align:center;">
+                <button class="btn-small btn-blue" onclick="toggleAll(true)">全選択</button>
+                <button class="btn-small btn-orange" onclick="toggleAll(false)">全解除</button>
+            </div>
+
+            <div class="section-box">
+                <div class="category-title">お肉・魚 <span style="font-size:10px; float:right;">≡SORT</span></div>
+                <div id="list-meat" class="ingredient-grid"></div>
+                <button class="btn-small btn-green" onclick="addIngredient('list-meat')">＋ 追加</button>
+            </div>
+
+            <div class="section-box">
+                <div class="category-title">野菜・その他 <span style="font-size:10px; float:right;">≡SORT</span></div>
+                <div id="list-veg" class="ingredient-grid"></div>
+                <button class="btn-small btn-green" onclick="addIngredient('list-veg')">＋ 追加</button>
+            </div>
+
+            <div style="margin-top:10px;">
+                <button class="btn-main btn-blue" onclick="generateMenu()" style="padding:10px;">献立提案</button>
+                <button class="btn-main btn-green" onclick="googleSearch()" style="padding:10px;">Google検索</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rice-calculation" class="screen hidden">
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+        
+        <h2 style="border:none; margin:5px 0;">ご飯計算</h2>
+
+        <div class="scroll-area" style="padding-bottom:0;">
+            <ul id="rice-list" class="rice-list"></ul>
+        </div>
+
+        <div class="result-box">
+            <div style="font-size: 14px; font-weight:bold; color:#666;">必要なご飯</div>
+            <div style="font-size: 40px; font-weight:bold; line-height:1; color:#e74c3c; margin: 5px 0;">
+                約 <span id="total-gou">0.0</span> <span style="font-size:24px; color:#333;">合</span>
+            </div>
+            <div style="font-size: 14px; color:#555;">(合計: <span id="total-rice">0</span> g)</div>
+        </div>
+        
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+    </div>
+
+    <script>
+        // --- 安全対策：自動リロードは廃止 ---
+        // エラーが出てもコンソールに出すだけにし、画面が白くなるのを防ぐ
+        window.onerror = function(message) {
+            console.error("Error detected: " + message);
+            // alert("エラーが発生しましたが、動作を継続します。"); // 必要ならコメントアウト解除
+            return false; 
+        };
+
+        // --- 画面切り替え ---
+        function changeScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById(screenId);
+            if(target) target.classList.remove('hidden');
+        }
+
+        // --- 更新機能 ---
+        function forceReload() {
+            const currentUrl = window.location.href.split('?')[0];
+            window.location.href = currentUrl + '?t=' + new Date().getTime();
+        }
+
+        // --- 起動処理 ---
+        window.onload = function() {
+            try {
+                loadData(); 
+            } catch (e) {
+                console.error("Data Load Error:", e);
+                // データがおかしい場合のみリセット
+                localStorage.removeItem('cookingApp_v1');
+                loadData();
+            }
+            loadTheme();
+            
+            // 並び替え機能の適用（Sortableが存在する場合のみ実行）
+            if (typeof Sortable !== 'undefined') {
+                makeSortable('list-meat');
+                makeSortable('list-veg');
+            }
+        };
+
+        function resetData() {
+            if(confirm("データをリセットしますか？")) {
+                localStorage.removeItem('cookingApp_v1');
+                location.reload();
+            }
+        }
+
+        function setTheme(themeName) {
+            document.getElementById('app-body').className = themeName;
+            localStorage.setItem('cookingApp_theme', themeName);
+        }
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('cookingApp_theme');
+            if (savedTheme) document.getElementById('app-body').className = savedTheme;
+        }
+
+        function saveData() {
+            const meatData = getListState('list-meat');
+            const vegData = getListState('list-veg');
+            const riceData = getRiceState();
+            const appData = { meat: meatData, veg: vegData, rice: riceData };
+            localStorage.setItem('cookingApp_v1', JSON.stringify(appData));
+        }
+
+        function loadData() {
+            const json = localStorage.getItem('cookingApp_v1');
+            if (json) {
+                const data = JSON.parse(json);
+                renderIngredients('list-meat', data.meat);
+                renderIngredients('list-veg', data.veg);
+                renderRiceMembers(data.rice);
+            } else {
+                const initMeat = [{name:"豚肉", checked:false}, {name:"鶏肉", checked:false}, {name:"ひき肉", checked:false}, {name:"牛肉", checked:false}];
+                const initVeg = [{name:"キャベツ", checked:false}, {name:"玉ねぎ", checked:false}, {name:"人参", checked:false}, {name:"じゃがいも", checked:false}, {name:"卵", checked:false}];
+                const initRice = [
+                    { name: "利用者A", g: 150 }, { name: "利用者B", g: 150 }, { name: "利用者C", g: 150 }, { name: "利用者D", g: 150 },
+                    { name: "利用者E", g: 100 }, { name: "利用者F", g: 100 }, { name: "利用者G", g: 200 }, { name: "利用者H", g: 200 },
+                    { name: "職員1", g: 200 }, { name: "職員2", g: 200 }
+                ];
+                renderIngredients('list-meat', initMeat);
+                renderIngredients('list-veg', initVeg);
+                renderRiceMembers(initRice);
+            }
+            calculateRice();
+        }
+
+        function getListState(parentId) {
+            const list = [];
+            const items = document.getElementById(parentId).children;
+            for (let item of items) {
+                const name = item.querySelector('.ingredient-name').value;
+                const checked = item.querySelector('.cb-food').checked;
+                list.push({ name: name, checked: checked });
+            }
+            return list;
+        }
+        function getRiceState() {
+            const list = [];
+            const items = document.getElementById('rice-list').children;
+            for (let item of items) {
+                const name = item.querySelector('.name-input').value;
+                const g = item.querySelector('.gram-input').value;
+                list.push({ name: name, g: parseInt(g) || 0 });
+            }
+            return list;
+        }
+        function renderIngredients(parentId, dataArray) {
+            const container = document.getElementById(parentId);
+            container.innerHTML = ''; 
+            if(!dataArray) return;
+            dataArray.forEach(item => createItem(parentId, item.name, item.checked));
+        }
+        function renderRiceMembers(dataArray) {
+            const ul = document.getElementById('rice-list');
+            ul.innerHTML = '';
+            if(!dataArray) return;
+            dataArray.forEach((m, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="text" class="name-input" value="${m.name}" onchange="saveData()">
+                    <div style="display:flex; align-items:center;">
+                        <input type="number" id="g-${i}" class="gram-input" value="${m.g}" oninput="calculateRice()" onchange="saveData(); calculateRice()"> 
+                        <span class="unit-label">g</span>
+                    </div>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function createItem(parentId, name, isChecked = false) {
+            const div = document.createElement('div');
+            div.className = 'ingredient-item';
+            div.innerHTML = `
+                <span class="handle">≡</span>
+                <input type="checkbox" class="cb-food" ${isChecked ? 'checked' : ''} onchange="saveData()">
+                <input type="text" class="ingredient-name" value="${name}" placeholder="食材" onchange="saveData()">
+                <button class="btn-delete" onclick="deleteItem(this)">×</button>
+            `;
+            document.getElementById(parentId).appendChild(div);
+        }
+        function addIngredient(parentId) { createItem(parentId, ""); saveData(); }
+        function deleteItem(btn) { btn.parentElement.remove(); saveData(); }
+        function toggleAll(on) { document.querySelectorAll('.cb-food').forEach(cb => cb.checked = on); saveData(); }
+        function makeSortable(elementId) {
+            // ライブラリがある場合のみ実行
+            if (typeof Sortable !== 'undefined') {
+                new Sortable(document.getElementById(elementId), {
+                    handle: '.handle', animation: 150, ghostClass: 'sortable-ghost', onEnd: function() { saveData(); }
+                });
+            }
+        }
+        function generateMenu() {
+            const foods = getSelectedFoods();
+            if (foods.length === 0) { alert("食材を選んでください"); return; }
+            alert("【提案】\nおまかせメニュー\n(使用: " + foods.join("、") + ")");
+        }
+        function googleSearch() {
+            const foods = getSelectedFoods();
+            if (foods.length === 0) { alert("食材を選んでください"); return; }
+            const url = "https://www.google.com/search?q=" + encodeURIComponent(foods.join(" ") + " レシピ");
+            window.open(url, '_blank');
+        }
+        function getSelectedFoods() {
+            const list = [];
+            document.querySelectorAll('.ingredient-item').forEach(item => {
+                if (item.querySelector('.cb-food').checked && item.querySelector('.ingredient-name').value.trim() !== "") 
+                    list.push(item.querySelector('.ingredient-name').value);
+            });
+            return list;
+        }
+        function calculateRice() {
+            let total = 0;
+            const items = document.getElementById('rice-list').children;
+            for (let item of items) {
+                total += parseInt(item.querySelector('.gram-input').value) || 0;
+            }
+            document.getElementById('total-rice').innerText = total;
+            document.getElementById('total-gou').innerText = (total / 330).toFixed(1);
+        }
+    </script>
+</body>
+</html>
