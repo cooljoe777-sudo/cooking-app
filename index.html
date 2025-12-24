@@ -26,15 +26,23 @@
         .handle { cursor: grab; padding: 0 2px; font-size: 20px; min-width: 20px; user-select: none; }
         .btn-delete { background: none; border: none; font-weight: bold; font-size: 20px; cursor: pointer; padding: 0 5px; width: auto; margin: 0; line-height: 1; }
         
-        .rice-list li { margin: 5px 0; padding: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .gram-input { font-size: 18px; padding: 5px; width: 60px; text-align: right; }
-        .name-input { font-size: 16px; width: 90px; border: none; }
+        /* ご飯リストの修正：横並び設定 */
+        .rice-list li { 
+            margin: 8px 0; 
+            padding: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        /* 入力欄を大きく、タップしやすく */
+        .gram-input { font-size: 22px; padding: 5px; width: 80px; text-align: right; margin-right: 5px; }
+        .name-input { font-size: 20px; width: 100%; border: none; background: transparent; text-align: left; }
 
         /* 小さいボタン共通 */
         .btn-small { width: auto; display: inline-block; padding: 5px 15px; font-size: 13px; margin: 3px; }
 
         /* =========================================
-           テーマA: スタンダード (今までのデザイン)
+           テーマA: スタンダード
            ========================================= */
         body.theme-standard { font-family: sans-serif; background-color: #f0f8ff; color: #333; }
         .theme-standard h1 { color: #2c3e50; font-size: 22px; }
@@ -53,8 +61,11 @@
         .theme-standard .ingredient-name { border-bottom: 1px dashed #ccc; font-size: 15px; }
         .theme-standard .handle { color: #aaa; }
         .theme-standard .btn-delete { color: #e74c3c; }
-        .theme-standard .rice-list li { background: white; border-bottom: 1px solid #ccc; }
-        .theme-standard .name-input { border-bottom: 1px solid #ccc; }
+        
+        /* ご飯リストのスタイル修正 */
+        .theme-standard .rice-list li { background: white; border-bottom: 1px solid #ccc; border-radius: 4px; }
+        .theme-standard .name-input { border-bottom: none; font-weight: bold; }
+        .theme-standard .gram-input { border: 1px solid #ccc; border-radius: 4px; background: #fafafa; }
 
 
         /* =========================================
@@ -63,7 +74,6 @@
         body.theme-mech { 
             font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; 
             background-color: #eef2f5; 
-            /* グリッド背景 */
             background-image: 
                 linear-gradient(#cbd5e0 1px, transparent 1px),
                 linear-gradient(90deg, #cbd5e0 1px, transparent 1px);
@@ -74,7 +84,7 @@
             color: #003366; 
             font-weight: 900; 
             letter-spacing: 2px; 
-            border-left: 10px solid #e74c3c; /* 赤いライン */
+            border-left: 10px solid #e74c3c; 
             padding-left: 10px;
             background: rgba(255,255,255,0.8);
             display: inline-block;
@@ -82,43 +92,39 @@
 
         .theme-mech .section-box { 
             background: rgba(255, 255, 255, 0.9); 
-            border: 2px solid #0055aa; /* 青い枠 */
-            border-radius: 0; /* 角丸なし */
+            border: 2px solid #0055aa; 
+            border-radius: 0; 
             position: relative;
         }
-        /* 角を切り落とす装飾 */
         .theme-mech .section-box::after {
             content: ""; position: absolute; top: -2px; right: -2px;
-            width: 15px; height: 15px; background: #e74c3c; /* 右上の赤いアクセント */
+            width: 15px; height: 15px; background: #e74c3c; 
             clip-path: polygon(0 0, 100% 0, 100% 100%);
         }
 
-        /* メカ風ボタン */
         .theme-mech button { 
-            border-radius: 0; /* 四角く */
+            border-radius: 0; 
             border: none;
             padding: 15px; 
             font-size: 18px; 
             font-weight: bold;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); /* 角をカット */
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); 
             box-shadow: none;
             position: relative;
             letter-spacing: 1px;
         }
-        /* ボタンの左側に装飾ライン */
         .theme-mech button::before {
             content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: rgba(0,0,0,0.2);
         }
 
         .theme-mech .btn-blue { background-color: #0055aa; color: white; border-bottom: 3px solid #003366; }
-        .theme-mech .btn-orange { background-color: #ffcc00; color: #333; border-bottom: 3px solid #cc9900; } /* 黄色 */
-        .theme-mech .btn-green { background-color: #009944; color: white; border-bottom: 3px solid #006622; } /* カメラアイグリーン */
+        .theme-mech .btn-orange { background-color: #ffcc00; color: #333; border-bottom: 3px solid #cc9900; }
+        .theme-mech .btn-green { background-color: #009944; color: white; border-bottom: 3px solid #006622; }
         .theme-mech .btn-gray { background-color: #666; color: white; width: 90%; border-bottom: 3px solid #333; }
         
         .theme-mech .btn-reload { background-color: #e74c3c; color: white; width: auto; display: inline-block; margin-top:20px; font-size: 14px; padding:10px 20px;}
         .theme-mech .btn-settings { background-color: #333; color: white; width: auto; display: inline-block; margin-top:10px; font-size: 14px; padding:10px 20px;}
 
-        /* リスト周り */
         .theme-mech .category-title { 
             background: #0055aa; color: white; 
             padding: 5px 10px; margin-bottom: 8px; font-size: 14px; 
@@ -133,7 +139,7 @@
         .theme-mech .btn-delete { color: #e74c3c; }
         
         .theme-mech .rice-list li { background: rgba(255,255,255,0.8); border: 1px solid #999; border-left: 4px solid #e74c3c; }
-        .theme-mech .name-input { border-bottom: 1px solid #333; font-family: monospace; background: transparent; }
+        .theme-mech .name-input { border-bottom: none; font-family: monospace; background: transparent; }
         .theme-mech .gram-input { border: 1px solid #333; font-family: monospace; background: #fff; }
 
     </style>
@@ -141,10 +147,7 @@
 <body id="app-body" class="theme-standard"> <div id="main-menu">
         <h1>献立 & ご飯計算</h1>
         
-        <div class="section-box">
-            <h3 style="margin-top:0;">STATUS: NORMAL</h3>
-            <p>食材チェックおよび、必要米量の算出を実行します。</p>
-        </div>
+        <p style="margin-bottom: 20px;">使用したい機能を選択してください</p>
 
         <button class="btn-blue" onclick="showScreen('meal-planning')">献立を考える</button>
         <button class="btn-orange" onclick="showScreen('rice-calculation')">ご飯の量を計算</button>
@@ -217,17 +220,17 @@
         <button class="btn-gray" onclick="showMainMenu()">トップに戻る</button>
         <h2>ご飯計算</h2>
 
-        <ul id="rice-list" style="list-style:none; padding:0; text-align:left;"></ul>
+        <ul id="rice-list" class="rice-list" style="list-style:none; padding:0; text-align:left;"></ul>
 
         <div class="section-box" style="text-align:center; background-color:#fff3e0; border:2px solid #ff9800;">
-            <div style="font-size: 16px; font-weight:bold; color:#666; margin-bottom:5px;">必要なご飯の合計</div>
+            <div style="font-size: 16px; font-weight:bold; color:#666; margin-bottom:0px;">必要なご飯</div>
             
-            <div style="font-size: 80px; font-weight:bold; line-height:1; color:#e74c3c;">
-                <span id="total-rice">0</span><span style="font-size:30px; color:#333; margin-left:5px;">g</span>
+            <div style="font-size: 60px; font-weight:bold; line-height:1; color:#e74c3c; margin: 10px 0;">
+                約 <span id="total-gou">0.0</span> <span style="font-size:30px; color:#333;">合</span>
             </div>
             
-            <div style="font-size: 28px; margin-top:10px; color:#333;">
-                (約 <span id="total-gou" style="font-weight:bold;">0.0</span> 合)
+            <div style="font-size: 18px; color:#555;">
+                (合計: <span id="total-rice" style="font-weight:bold;">0</span> g)
             </div>
         </div>
         <button class="btn-gray" onclick="showMainMenu()">トップに戻る</button>
@@ -333,11 +336,12 @@
             ul.innerHTML = '';
             dataArray.forEach((m, i) => {
                 const li = document.createElement('li');
-                // input時にcalculateRiceを発火させるように修正
+                // 1行表示レイアウトに変更
                 li.innerHTML = `
                     <input type="text" class="name-input" value="${m.name}" onchange="saveData()">
-                    <div>
-                        <input type="number" id="g-${i}" class="gram-input" value="${m.g}" oninput="calculateRice()" onchange="saveData(); calculateRice()"> g
+                    <div style="display:flex; align-items:center;">
+                        <input type="number" id="g-${i}" class="gram-input" value="${m.g}" oninput="calculateRice()" onchange="saveData(); calculateRice()"> 
+                        <span style="font-size:16px;">g</span>
                     </div>
                 `;
                 ul.appendChild(li);
@@ -428,6 +432,7 @@
                 total += g;
             }
             document.getElementById('total-rice').innerText = total;
+            // 合計算出 (330g = 1合として計算)
             document.getElementById('total-gou').innerText = (total / 330).toFixed(1);
         }
     </script>
