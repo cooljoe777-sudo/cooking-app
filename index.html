@@ -7,33 +7,42 @@
     <title>献立 & ご飯計算</title>
     <style>
         /* =========================================
-           基本設定：徹底した余白削除と圧縮
+           基本設定：1画面固定レイアウト
            ========================================= */
         body { 
-            margin: 0; 
-            padding: 5px; 
+            margin: 0; padding: 0; 
             text-align: center; 
             box-sizing: border-box; 
-            height: 100vh; /* 画面全体の高さを確保 */
-            overflow: hidden; /* 全体のスクロールを防止（中身だけスクロール） */
-            display: flex;
-            flex-direction: column;
+            height: 100vh; /* 画面の高さに固定 */
+            overflow: hidden; /* 全体のスクロール禁止 */
+            display: flex; flex-direction: column;
+            background-color: #f0f8ff; /* 初期背景 */
         }
 
         /* 画面ごとのコンテナ */
         .screen {
             height: 100%;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* 必要なら中身だけスクロール */
+            padding: 5px;
+            box-sizing: border-box;
+            overflow-y: hidden; /* 内部スクロール制御 */
         }
         .hidden { display: none !important; }
 
-        /* タイトル周り */
+        /* コンテンツ領域（スクロール可能部分） */
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 5px;
+        }
+
+        /* タイトル */
         h1 { margin: 5px 0; font-size: 18px; line-height: 1.2; }
         h2 { margin: 2px 0 5px 0; font-size: 16px; border-bottom: 1px solid #ccc; display:inline-block; padding: 0 10px;}
         
-        #main-menu { max-width: 400px; margin: 0 auto; width: 100%; }
+        #main-menu { max-width: 400px; margin: 0 auto; width: 100%; justify-content: center; }
         
         /* セクション枠 */
         .section-box { padding: 5px; border-radius: 6px; text-align: left; margin-bottom: 5px; }
@@ -42,18 +51,11 @@
         button { cursor: pointer; display: block; width: 100%; max-width: 350px; margin: 5px auto; transition: 0.1s; }
         button:active { transform: scale(0.98); }
         
-        /* ■修正：極細トップに戻るボタン■ */
+        /* ■極細トップに戻るボタン■ */
         .btn-return { 
-            background-color: #95a5a6; 
-            color: white; 
-            font-size: 12px; 
-            height: 25px; /* 高さを固定 */
-            line-height: 25px; /* 文字を垂直中央に */
-            padding: 0;
-            border: none;
-            width: 100%;
-            margin-bottom: 2px;
-            border-radius: 4px;
+            background-color: #95a5a6; color: white; 
+            font-size: 12px; height: 25px; line-height: 25px; 
+            padding: 0; border: none; width: 100%; margin-bottom: 2px; border-radius: 4px;
         }
 
         /* リスト・グリッド */
@@ -63,27 +65,298 @@
         .handle { cursor: grab; padding: 0 5px; font-size: 16px; width: 20px; text-align:center; }
         .btn-delete { background: none; border: none; font-weight: bold; font-size: 18px; cursor: pointer; padding: 0 5px; color: #e74c3c; }
         
-        /* ■修正：ご飯リストの超圧縮■ */
-        .rice-list { 
-            margin: 0 0 5px 0; 
-            padding: 0; 
-            list-style: none; 
-            flex: 1; /* 余ったスペースを使う */
-            overflow-y: auto; /* 人数が増えたらここだけスクロール */
-            max-height: 60vh; /* 画面の6割まで */
-        }
+        /* ■ご飯リスト■ */
+        .rice-list { margin: 0; padding: 0; list-style: none; }
         .rice-list li { 
-            margin: 1px 0; 
-            padding: 2px 5px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            height: 34px; 
-            font-size: 14px;
+            margin: 1px 0; padding: 2px 5px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            height: 34px; font-size: 14px;
         }
-        /* 入力欄 */
         .gram-input { font-size: 18px; padding: 0 2px; width: 60px; text-align: right; height: 28px; border:1px solid #ccc; border-radius:4px;}
         .name-input { font-size: 14px; width: 100%; border: none; background: transparent; height: 28px; line-height:28px; }
 
-        /* 小さいボタン */
-        .btn-small { width: auto; display: inline-block; padding: 4px 10px; font-size: 11px; margin: 2
+        .btn-small { width: auto; display: inline-block; padding: 4px 10px; font-size: 11px; margin: 2px; border-radius:4px; border:none; color:white;}
+
+        /* =========================================
+           テーマ設定
+           ========================================= */
+        /* テーマA: スタンダード */
+        body.theme-standard { font-family: sans-serif; background-color: #f0f8ff; color: #333; }
+        .theme-standard h1 { color: #2c3e50; }
+        .theme-standard .section-box { background: #fff; border: 1px solid #ccc; }
+        .theme-standard .btn-main { border-radius: 8px; border: none; padding: 12px; font-size: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); color:white; }
+        .theme-standard .btn-blue { background-color: #3498db; }
+        .theme-standard .btn-orange { background-color: #e67e22; }
+        .theme-standard .btn-green { background-color: #2ecc71; }
+        .theme-standard .btn-settings { background-color: #7f8c8d; padding: 8px; font-size: 12px; border-radius:20px; color:white; border:none;}
+        .theme-standard .category-title { background: #eee; padding: 2px 5px; font-weight: bold; margin-bottom: 2px; font-size: 12px; }
+        .theme-standard .ingredient-item { background: #fafafa; border: 1px solid #ddd; border-radius: 4px; }
+        .theme-standard .ingredient-name { border-bottom: 1px dashed #ccc; }
+        .theme-standard .rice-list li { background: white; border-bottom: 1px solid #eee; }
+
+        /* テーマB: 連邦モデル */
+        body.theme-mech { font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; background-color: #eef2f5; color: #333; }
+        .theme-mech h1 { color: #003366; font-weight: 900; letter-spacing: 1px; border-left: 6px solid #e74c3c; padding-left: 6px; background: rgba(255,255,255,0.8); display: inline-block; }
+        .theme-mech .section-box { background: rgba(255, 255, 255, 0.95); border: 2px solid #0055aa; border-radius: 0; }
+        .theme-mech .btn-main { border-radius: 0; border: none; padding: 12px; font-size: 16px; font-weight: bold; color:white; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+        .theme-mech .btn-blue { background-color: #0055aa; border-bottom: 2px solid #003366; }
+        .theme-mech .btn-orange { background-color: #ffcc00; color: #333; border-bottom: 2px solid #cc9900; }
+        .theme-mech .btn-green { background-color: #009944; border-bottom: 2px solid #006622; }
+        .theme-mech .btn-return { border-radius: 0; background-color: #555; border-bottom: 2px solid #222; }
+        .theme-mech .rice-list li { border-bottom: 1px solid #999; border-left: 3px solid #e74c3c; background: rgba(255,255,255,0.8); }
+
+        /* 結果表示ボックス */
+        .result-box { text-align: center; background-color: #fff3e0; border: 2px solid #ff9800; padding: 2px; margin-top: auto; }
+    </style>
+</head>
+<body id="app-body" class="theme-standard"> 
+    
+    <div id="main-menu" class="screen">
+        <h1>献立 & ご飯計算</h1>
+        <p style="margin-bottom: 5px; font-size:12px; color:#666;">Select Mode</p>
+
+        <button class="btn-main btn-blue" onclick="changeScreen('meal-planning')">献立を考える</button>
+        <button class="btn-main btn-orange" onclick="changeScreen('rice-calculation')">ご飯の量を計算</button>
+
+        <div style="text-align:center; margin-top: 20px;">
+            <button class="btn-settings" onclick="changeScreen('settings-screen')">⚙ 設定 / Design</button>
+        </div>
+        
+        <div style="margin-top: auto; font-size: 10px; opacity: 0.5;">App Factory v2.2 (Stable)</div>
+    </div>
+
+    <div id="settings-screen" class="screen hidden">
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+        <h2>設定</h2>
+        <div class="section-box">
+            <div class="category-title">デザインテーマ</div>
+            <div style="text-align: center; padding: 5px;">
+                <button class="btn-small" style="background:#ddd; color:#333; border:1px solid #999;" onclick="setTheme('theme-standard')">スタンダード</button>
+                <button class="btn-small" style="background:#0055aa; color:#fff;" onclick="setTheme('theme-mech')">連邦モデル</button>
+            </div>
+        </div>
+        <div style="margin-top:20px; text-align:center;">
+             <button class="btn-small" style="background:#e74c3c; color:white;" onclick="resetData()">⚠ データをリセット</button>
+        </div>
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+    </div>
+
+    <div id="meal-planning" class="screen hidden">
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+        <h2>冷蔵庫チェック</h2>
+
+        <div style="text-align:center;">
+            <button class="btn-small btn-blue" onclick="toggleAll(true)">全選択</button>
+            <button class="btn-small btn-orange" onclick="toggleAll(false)">全解除</button>
+        </div>
+
+        <div class="scroll-area">
+            <div class="section-box">
+                <div class="category-title">お肉・魚 <span style="font-size:10px; float:right;">≡SORT</span></div>
+                <div id="list-meat" class="ingredient-grid"></div>
+                <button class="btn-small btn-green" onclick="addIngredient('list-meat')">＋ 追加</button>
+            </div>
+
+            <div class="section-box">
+                <div class="category-title">野菜・その他 <span style="font-size:10px; float:right;">≡SORT</span></div>
+                <div id="list-veg" class="ingredient-grid"></div>
+                <button class="btn-small btn-green" onclick="addIngredient('list-veg')">＋ 追加</button>
+            </div>
+        </div>
+
+        <div style="margin-top:2px;">
+            <button class="btn-main btn-blue" onclick="generateMenu()" style="padding:8px; font-size:14px; margin:2px auto;">献立提案</button>
+            <button class="btn-main btn-green" onclick="googleSearch()" style="padding:8px; font-size:14px; margin:2px auto;">Google検索</button>
+        </div>
+    </div>
+
+    <div id="rice-calculation" class="screen hidden">
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+        
+        <h2 style="border:none; margin:0;">ご飯計算</h2>
+
+        <div class="scroll-area" style="border-bottom:1px solid #ccc;">
+            <ul id="rice-list" class="rice-list"></ul>
+        </div>
+
+        <div class="section-box result-box">
+            <div style="font-size: 12px; font-weight:bold; color:#666;">必要なご飯</div>
+            <div style="font-size: 36px; font-weight:bold; line-height:1; color:#e74c3c; margin: 2px 0;">
+                約 <span id="total-gou">0.0</span> <span style="font-size:20px; color:#333;">合</span>
+            </div>
+            <div style="font-size: 12px; color:#555;">(合計: <span id="total-rice">0</span> g)</div>
+        </div>
+        
+        <button class="btn-return" onclick="changeScreen('main-menu')">▲ トップに戻る</button>
+    </div>
+
+    <script>
+        // --- 画面切り替え ---
+        function changeScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(s => s.classList.add('hidden'));
+            
+            const target = document.getElementById(screenId);
+            if(target) {
+                target.classList.remove('hidden');
+            }
+        }
+
+        // --- 起動時の処理（安全装置付き） ---
+        window.onload = function() {
+            try {
+                loadData(); 
+            } catch (e) {
+                console.error("Data corrupted, resetting...");
+                localStorage.removeItem('cookingApp_v1'); // 壊れたデータを消去
+                loadData(); // 初期データで再実行
+            }
+            loadTheme();
+            makeSortable('list-meat');
+            makeSortable('list-veg');
+        };
+
+        // --- データリセット ---
+        function resetData() {
+            if(confirm("全てのデータを初期状態に戻しますか？")) {
+                localStorage.removeItem('cookingApp_v1');
+                location.reload();
+            }
+        }
+
+        // --- テーマ切り替え ---
+        function setTheme(themeName) {
+            document.getElementById('app-body').className = themeName;
+            localStorage.setItem('cookingApp_theme', themeName);
+        }
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('cookingApp_theme');
+            if (savedTheme) document.getElementById('app-body').className = savedTheme;
+        }
+
+        // --- データ保存・読込 ---
+        function saveData() {
+            const meatData = getListState('list-meat');
+            const vegData = getListState('list-veg');
+            const riceData = getRiceState();
+            const appData = { meat: meatData, veg: vegData, rice: riceData };
+            localStorage.setItem('cookingApp_v1', JSON.stringify(appData));
+        }
+
+        function loadData() {
+            const json = localStorage.getItem('cookingApp_v1');
+            if (json) {
+                const data = JSON.parse(json); // ここでエラーが出てもキャッチされる
+                renderIngredients('list-meat', data.meat);
+                renderIngredients('list-veg', data.veg);
+                renderRiceMembers(data.rice);
+            } else {
+                // 初期データ
+                const initMeat = [{name:"豚肉", checked:false}, {name:"鶏肉", checked:false}, {name:"ひき肉", checked:false}, {name:"牛肉", checked:false}];
+                const initVeg = [{name:"キャベツ", checked:false}, {name:"玉ねぎ", checked:false}, {name:"人参", checked:false}, {name:"じゃがいも", checked:false}, {name:"卵", checked:false}];
+                const initRice = [
+                    { name: "利用者A", g: 150 }, { name: "利用者B", g: 150 }, { name: "利用者C", g: 150 }, { name: "利用者D", g: 150 },
+                    { name: "利用者E", g: 100 }, { name: "利用者F", g: 100 }, { name: "利用者G", g: 200 }, { name: "利用者H", g: 200 },
+                    { name: "職員1", g: 200 }, { name: "職員2", g: 200 }
+                ];
+                renderIngredients('list-meat', initMeat);
+                renderIngredients('list-veg', initVeg);
+                renderRiceMembers(initRice);
+            }
+            calculateRice();
+        }
+
+        // --- Helper Functions ---
+        function getListState(parentId) {
+            const list = [];
+            const items = document.getElementById(parentId).children;
+            for (let item of items) {
+                const name = item.querySelector('.ingredient-name').value;
+                const checked = item.querySelector('.cb-food').checked;
+                list.push({ name: name, checked: checked });
+            }
+            return list;
+        }
+        function getRiceState() {
+            const list = [];
+            const items = document.getElementById('rice-list').children;
+            for (let item of items) {
+                const name = item.querySelector('.name-input').value;
+                const g = item.querySelector('.gram-input').value;
+                list.push({ name: name, g: parseInt(g) || 0 });
+            }
+            return list;
+        }
+        function renderIngredients(parentId, dataArray) {
+            const container = document.getElementById(parentId);
+            container.innerHTML = ''; 
+            if(!dataArray) return;
+            dataArray.forEach(item => createItem(parentId, item.name, item.checked));
+        }
+        function renderRiceMembers(dataArray) {
+            const ul = document.getElementById('rice-list');
+            ul.innerHTML = '';
+            if(!dataArray) return;
+            dataArray.forEach((m, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="text" class="name-input" value="${m.name}" onchange="saveData()">
+                    <div style="display:flex; align-items:center;">
+                        <input type="number" id="g-${i}" class="gram-input" value="${m.g}" oninput="calculateRice()" onchange="saveData(); calculateRice()"> 
+                        <span style="font-size:12px; margin-left:2px;">g</span>
+                    </div>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function createItem(parentId, name, isChecked = false) {
+            const div = document.createElement('div');
+            div.className = 'ingredient-item';
+            div.innerHTML = `
+                <span class="handle">≡</span>
+                <input type="checkbox" class="cb-food" ${isChecked ? 'checked' : ''} onchange="saveData()">
+                <input type="text" class="ingredient-name" value="${name}" placeholder="食材" onchange="saveData()">
+                <button class="btn-delete" onclick="deleteItem(this)">×</button>
+            `;
+            document.getElementById(parentId).appendChild(div);
+        }
+        function addIngredient(parentId) { createItem(parentId, ""); saveData(); }
+        function deleteItem(btn) { btn.parentElement.remove(); saveData(); }
+        function toggleAll(on) { document.querySelectorAll('.cb-food').forEach(cb => cb.checked = on); saveData(); }
+        function makeSortable(elementId) {
+            new Sortable(document.getElementById(elementId), {
+                handle: '.handle', animation: 150, ghostClass: 'sortable-ghost', onEnd: function() { saveData(); }
+            });
+        }
+        function generateMenu() {
+            const foods = getSelectedFoods();
+            if (foods.length === 0) { alert("食材を選んでください"); return; }
+            alert("【提案】\nおまかせメニュー\n(使用: " + foods.join("、") + ")");
+        }
+        function googleSearch() {
+            const foods = getSelectedFoods();
+            if (foods.length === 0) { alert("食材を選んでください"); return; }
+            const url = "https://www.google.com/search?q=" + encodeURIComponent(foods.join(" ") + " レシピ");
+            window.open(url, '_blank');
+        }
+        function getSelectedFoods() {
+            const list = [];
+            document.querySelectorAll('.ingredient-item').forEach(item => {
+                if (item.querySelector('.cb-food').checked && item.querySelector('.ingredient-name').value.trim() !== "") 
+                    list.push(item.querySelector('.ingredient-name').value);
+            });
+            return list;
+        }
+        function calculateRice() {
+            let total = 0;
+            const items = document.getElementById('rice-list').children;
+            for (let item of items) {
+                total += parseInt(item.querySelector('.gram-input').value) || 0;
+            }
+            document.getElementById('total-rice').innerText = total;
+            document.getElementById('total-gou').innerText = (total / 330).toFixed(1);
+        }
+    </script>
+</body>
+</html>
