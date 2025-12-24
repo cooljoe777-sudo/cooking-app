@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <title>献立 & ご飯計算</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         /* =========================================
-           基本設定：1画面固定
+           基本設定：安全性と1画面収容の両立
            ========================================= */
-        body { 
-            margin: 0; padding: 0; 
-            text-align: center; 
-            box-sizing: border-box; 
-            height: 100vh; /* 画面全体の高さを固定 */
-            overflow: hidden; 
-            display: flex; flex-direction: column;
+        html, body {
+            height: 100%; /* 100vhより安定する指定 */
+            margin: 0; padding: 0;
+            overflow: hidden; /* 全体のスクロール禁止 */
+            box-sizing: border-box;
             background-color: #f0f8ff;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; /* iPhone標準フォント */
         }
 
         /* 画面コンテナ */
         .screen {
             height: 100%;
-            width: 100%;
             display: flex;
             flex-direction: column;
             padding: 5px;
@@ -30,73 +29,128 @@
         }
         .hidden { display: none !important; }
 
-        /* スクロール領域 */
+        /* スクロール領域（ここだけスクロールする） */
         .scroll-area {
             flex: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* iPhoneでのスクロールを滑らかに */
             padding-bottom: 20px;
         }
 
-        /* トップ画面の調整：上詰め配置 */
+        /* トップ画面の配置（上詰め） */
         .top-container {
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-start; 
-            height: 100%;
-            padding-top: 30px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 30px;
         }
 
-        h1 { margin: 10px 0; font-size: 20px; line-height: 1.2; }
-        h2 { margin: 5px 0 10px 0; font-size: 18px; border-bottom: 2px solid #ccc; display:inline-block; padding: 0 10px;}
+        /* テキスト・見出し */
+        h1 { margin: 10px 0; font-size: 20px; line-height: 1.2; color: #2c3e50; }
+        h2 { margin: 5px 0 10px 0; font-size: 18px; border-bottom: 2px solid #ccc; display: inline-block; padding: 0 10px; }
+        p { color: #666; font-size: 14px; margin-bottom: 20px; }
+
+        /* ボタン共通 */
+        button { 
+            cursor: pointer; display: block; width: 100%; max-width: 350px; 
+            margin: 10px auto; border: none; transition: 0.1s; 
+        }
+        button:active { transform: scale(0.98); opacity: 0.8; }
+
+        /* メインボタン */
+        .btn-main { border-radius: 8px; padding: 12px; font-size: 16px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-blue { background-color: #3498db; }
+        .btn-orange { background-color: #e67e22; }
+        .btn-green { background-color: #2ecc71; }
         
-        #main-menu { max-width: 400px; margin: 0 auto; width: 100%; justify-content: center; }
+        /* 更新ボタン */
+        .btn-reload { 
+            background-color: #e74c3c; color: white; padding: 10px; font-size: 14px; 
+            border-radius: 8px; width: auto; display: inline-block; 
+        }
         
-        .section-box { padding: 5px; border-radius: 6px; text-align: left; margin-bottom: 5px; }
-        
-        button { cursor: pointer; display: block; width: 100%; max-width: 350px; margin: 10px auto; transition: 0.1s; }
-        button:active { transform: scale(0.98); }
-        
-        /* トップに戻るボタン */
+        /* 設定ボタン */
+        .btn-settings { 
+            background-color: #7f8c8d; padding: 8px; font-size: 12px; 
+            border-radius: 20px; color: white; width: auto; display: inline-block;
+        }
+
+        /* トップに戻るボタン（指示通り：90%幅、適度な高さ） */
         .btn-return { 
             background-color: #95a5a6; color: white; 
-            font-size: 14px; 
-            padding: 8px 0; 
-            border: none; 
-            width: 90%; 
-            margin: 5px auto 5px auto; 
-            border-radius: 6px;
-            flex-shrink: 0; 
+            font-size: 14px; padding: 8px 0; 
+            width: 90%; margin: 5px auto 5px auto; 
+            border-radius: 6px; flex-shrink: 0;
         }
 
-        /* ■ご飯リストの修正：行間と高さを圧縮■ */
-        .rice-list { margin: 0; padding: 0; list-style: none; text-align: center; }
+        /* セクション枠 */
+        .section-box { 
+            background: #fff; border: 1px solid #ccc; padding: 5px; 
+            border-radius: 6px; text-align: left; margin-bottom: 5px; 
+        }
+        .category-title { 
+            background: #eee; padding: 2px 5px; font-weight: bold; 
+            margin-bottom: 2px; font-size: 12px; 
+        }
+
+        /* ■ご飯リスト（1画面収容のため圧縮）■ */
+        .rice-list { margin: 0; padding: 0; list-style: none; }
         .rice-list li { 
             margin: 1px auto; /* 極限まで詰める */
             padding: 0 5px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            max-width: 350px;
-            border-bottom: 1px solid #ddd;
-            height: 38px; /* 文字20pxが入るギリギリの高さ */
+            display: flex; justify-content: center; align-items: center; 
+            max-width: 350px; border-bottom: 1px solid #eee; background: white;
+            height: 38px; /* 高さ固定 */
         }
         
+        /* 入力欄（文字サイズ20px維持） */
         .name-input { 
-            font-size: 20px; /* 大きさ維持 */
-            width: 140px; 
-            border: none; 
-            border-bottom: 1px solid #ccc;
-            background: transparent; 
-            height: 28px; 
-            text-align: left;
-            margin-right: 5px;
+            font-size: 20px; width: 140px; border: none; border-bottom: 1px solid #ccc;
+            background: transparent; height: 28px; text-align: left; margin-right: 5px;
         }
         .gram-input { 
-            font-size: 20px; /* 大きさ維持 */
-            padding: 0 5px; 
-            width: 80px; 
-            text-align: right; 
-            height: 28px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px;
-            background: #fff;
+            font-size: 20px; padding: 0 5px; width: 80px; text-align: right; 
+            height: 28px; border: 1px solid #ccc; border-radius: 4px; background: #fff;
+        }
+        .unit-label { font-size: 16px; margin-left: 5px; }
+
+        /* 結果表示ボックス */
+        .result-box { 
+            text-align: center; background-color: #fff3e0; border: 2px solid #ff9800; 
+            padding: 5px; margin: 20px auto 5px auto; width: 90%; max-width: 350px; 
+            border-radius: 8px; flex-shrink: 0;
+        }
+
+        /* ■献立画面（入力欄を確実に表示）■ */
+        .ingredient-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+            gap: 4px; 
+        }
+        .ingredient-item { 
+            display: flex; align-items: center; padding: 2px; height: 36px; 
+            background: #fafafa; border: 1px solid #ddd; border-radius: 4px;
+        }
+        .ingredient-name { 
+            flex: 1; border: none; border-bottom: 1px dashed #ccc; 
+            background: transparent; padding: 0 5px; font-size: 14px; 
+            min-width: 50px; /* 幅を確保 */
+        }
+        .handle { cursor: grab; padding: 0 5px; font-size: 18px; color: #aaa; }
+        .btn-delete { background: none; border: none; font-weight: bold; font-size: 18px; color: #e74c3c; padding: 0 5px; }
+        
+        /* 小さいボタン */
+        .btn-small { 
+            width: auto; display: inline-block; padding: 4px 10px; 
+            font-size: 11px; margin: 2px; border-radius: 4px; color: white; border: none; 
+        }
+
+        /* テーマB: 連邦モデル（上書き設定） */
+        body.theme-mech { background-color: #eef2f5; font-family: sans-serif; }
+        .theme-mech h1 { color: #003366; border-left: 6px solid #e74c3c; padding-left: 6px; background: rgba(255,255,255,0.8); display: inline-block; }
+        .theme-mech .section-box { border: 2px solid #0055aa; border-radius: 0; background: rgba(255,255,255,0.95); }
+        .theme-mech .btn-main { border-radius: 0; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+        .theme-mech .btn-blue { background-color: #0055aa; border-bottom: 3px solid #003366; }
+        .theme-mech .btn-orange { background-color: #ffcc00; color: #333; border-bottom: 3px solid #cc9900; }
+        .theme-mech .btn-green { background-color: #009944; border-bottom: 3px solid #006622; }
+        .theme-mech .btn-reload { border-radius: 0; border:
